@@ -149,7 +149,7 @@ def run_pipeline(args, statusclass, metricsclass):
             "output": '{}_{}_{}.pon.vcf.gz'.format(block[0], block[1], block[2]),
             "reference": {"class": "File", "path": reference_fasta_path},
             "tumor_sample": args.normal_barcode,
-            "intervals": "{0}:{1}-{2}".format(block[0], block[1], block[2]),
+            "intervals": ["{0}:{1}-{2}".format(block[0], block[1], block[2])],
             "dont_use_soft_clipped_bases": duscb
             }
             with open(input_json_file, 'wt') as o:
