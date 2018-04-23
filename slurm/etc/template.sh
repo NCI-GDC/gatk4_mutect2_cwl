@@ -39,7 +39,7 @@ sudo chown ubuntu:ubuntu $basedir
 
 cd $basedir
 
-sudo git clone $repository gatk4_mutect2_cwl
+sudo git clone -b develop $repository gatk4_mutect2_cwl
 sudo chown ubuntu:ubuntu -R gatk4_mutect2_cwl
 
 trap cleanup EXIT

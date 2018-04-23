@@ -145,7 +145,7 @@ def run_pipeline(args, statusclass, metricsclass):
             input_json_file = os.path.join(jsondir, '{0}.{4}.{1}.{2}.{3}.gatk4_mutect2.pon.inputs.json'.format(str(output_id), block[0], block[1], block[2], i))
             input_json_data = {
             "java_heap": args.java_heap,
-            "input": {"class": "File", "path": normal_bam},
+            "input": [{"class": "File", "path": normal_bam}],
             "output": '{}_{}_{}.pon.vcf.gz'.format(block[0], block[1], block[2]),
             "reference": {"class": "File", "path": reference_fasta_path},
             "tumor_sample": args.normal_barcode,
