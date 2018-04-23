@@ -1,0 +1,9 @@
+{
+  "reference_fasta": "GRCh38.d1.vd1.fa",
+  "reference_fasta_index": "GRCh38.d1.vd1.fa.fai",
+  "reference_fasta_dict": "GRCh38.d1.vd1.dict",
+  "duscb": false,
+  "pg_config": "postgres_config",
+  "cwl_version": "1.0.20170828135420",
+  "docker_version": ["broadinstitute/gatk:4.0.3.0", "quay.io/shenglai/picard-sortvcf-tool:1.0a"]
+}
