@@ -34,17 +34,17 @@ block="XX_BLOCKSIZE_XX"
 thread_count="XX_THREAD_COUNT_XX"
 java_heap="XX_JAVAHEAP_XX"
 
-repository="git@github.com:NCI-GDC/mutect2-cwl.git"
+repository="git@github.com:NCI-GDC/gatk4_mutect2_cwl.git"
 sudo chown ubuntu:ubuntu $basedir
 
 cd $basedir
 
-sudo git clone $repository mutect2_cwl
-sudo chown ubuntu:ubuntu -R mutect2_cwl
+sudo git clone $repository gatk4_mutect2_cwl
+sudo chown ubuntu:ubuntu -R gatk4_mutect2_cwl
 
 trap cleanup EXIT
 
-/home/ubuntu/.virtualenvs/p2/bin/python mutect2_cwl/slurm/gdc_mutect2_pipeline.py \
+/home/ubuntu/.virtualenvs/p2/bin/python gatk4_mutect2_cwl/slurm/gatk4_mutect2_pipeline.py \
 --case_id $case_id \
 --tumor_gdc_id $tumor_gdc_id \
 --normal_gdc_id $normal_gdc_id \
@@ -60,8 +60,8 @@ trap cleanup EXIT
 --pipeline $pipeline \
 --basedir $basedir \
 --refdir $refdir \
---cwl $basedir/mutect2_cwl/tools/gatk4_mutect2.cwl \
---sort $basedir/mutect2_cwl/tools/picard-sortvcf.cwl \
+--cwl $basedir/gatk4_mutect2_cwl/tools/gatk4_mutect2.cwl \
+--sort $basedir/gatk4_mutect2_cwl/tools/picard-sortvcf.cwl \
 --s3dir $s3dir \
 --s3_profile $s3_profile \
 --s3_endpoint $s3_endpoint \
