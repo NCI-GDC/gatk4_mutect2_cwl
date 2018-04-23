@@ -189,7 +189,7 @@ def create_sort_json(ref_dict, jid, jtag, jdir, indir, inlist, logger):
     for vcf in inlist:
         path = {"class": "File", "path": vcf}
         path_list.append(path)
-    path_json = {"input_vcf": path_list, "output_vcf": "{0}.mutect2.{1}.vcf.gz".format(jid, jtag)}
+    path_json = {"input_vcf": path_list, "output_vcf": "{0}.gatk4_mutect2.{1}.vcf.gz".format(jid, jtag)}
     sort_json_data.update(path_json)
     with open(json_path, 'wt') as o:
         json.dump(sort_json_data, o, indent=4)
