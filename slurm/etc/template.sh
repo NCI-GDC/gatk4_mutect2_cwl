@@ -44,6 +44,9 @@ sudo chown ubuntu:ubuntu -R gatk4_mutect2_cwl
 
 trap cleanup EXIT
 
+unset http_proxy
+unset https_proxy
+
 /home/ubuntu/.virtualenvs/p2/bin/python gatk4_mutect2_cwl/slurm/gatk4_mutect2_pipeline.py \
 --case_id $case_id \
 --tumor_gdc_id $tumor_gdc_id \
