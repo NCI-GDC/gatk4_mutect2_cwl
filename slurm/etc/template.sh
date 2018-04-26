@@ -33,6 +33,7 @@ s3_endpoint="XX_S3ENDPOINT_XX"
 block="XX_BLOCKSIZE_XX"
 thread_count="XX_THREAD_COUNT_XX"
 java_heap="XX_JAVAHEAP_XX"
+cwl = "XX_CWL_XX"
 
 repository="git@github.com:NCI-GDC/gatk4_mutect2_cwl.git"
 sudo chown ubuntu:ubuntu $basedir
@@ -63,7 +64,8 @@ unset https_proxy
 --pipeline $pipeline \
 --basedir $basedir \
 --refdir $refdir \
---cwl $basedir/gatk4_mutect2_cwl/tools/gatk4_mutect2.cwl \
+--cwl $basedir/gatk4_mutect2_cwl/$cwl \
+--get_metrics $basedir/gatk4_mutect2_cwl/tools/gatk4_collectsequencingartifactmetrics.cwl \
 --sort $basedir/gatk4_mutect2_cwl/tools/picard-sortvcf.cwl \
 --s3dir $s3dir \
 --s3_profile $s3_profile \
