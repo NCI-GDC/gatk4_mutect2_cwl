@@ -33,7 +33,7 @@ s3_endpoint="XX_S3ENDPOINT_XX"
 block="XX_BLOCKSIZE_XX"
 thread_count="XX_THREAD_COUNT_XX"
 java_heap="XX_JAVAHEAP_XX"
-cwl = "XX_CWL_XX"
+cwl="XX_CWL_XX"
 
 repository="git@github.com:NCI-GDC/gatk4_mutect2_cwl.git"
 sudo chown ubuntu:ubuntu $basedir
