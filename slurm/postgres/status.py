@@ -89,7 +89,9 @@ def get_mutect2_case(engine, input_table, status_table, input_primary_column="id
                         row.tumor_gdc_id,
                         row.normal_gdc_id,
                         row.tumor_s3_url,
-                        row.normal_s3_url]
+                        row.normal_s3_url,
+                        row.tumor_barcode,
+                        row.normal_barcode]
             count += 1
     else:
         #read the status table
@@ -102,6 +104,8 @@ def get_mutect2_case(engine, input_table, status_table, input_primary_column="id
                             row.tumor_gdc_id,
                             row.normal_gdc_id,
                             row.tumor_s3_url,
-                            row.normal_s3_url]
+                            row.normal_s3_url,
+                            row.tumor_barcode,
+                            row.normal_barcode]
                 count += 1
     return s
