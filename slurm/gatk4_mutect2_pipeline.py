@@ -193,12 +193,12 @@ def run_pipeline(args, statusclass, metricsclass):
         os.chdir(workdir)
         csam_json_file = os.path.join(jsondir, 'gatk4_mutect2.collectsequencingartifactmetrics.inputs.json')
         csam_json_data = {
-                            "java_heap": args.java_heap,
-                            "input": tumor_bam,
-                            "output": output_id,
-                            "file_extension": ".txt",
-                            "reference": reference_fasta_path
-                          }
+            "java_heap": args.java_heap,
+            "input": {"class": "File", "path": tumor_bam},
+            "output": str(output_id),
+            "file_extension": ".txt",
+            "reference": {"class": "File", "path": reference_fasta_path}
+        }
         with open(csam_json_file, 'wt') as o:
             json.dump(csam_json_data, o, indent=4)
         collectmetrics_cmd = ['/home/ubuntu/.virtualenvs/p2/bin/cwltool',
