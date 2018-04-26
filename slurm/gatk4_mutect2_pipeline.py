@@ -48,10 +48,11 @@ def get_args():
     required.add_argument("--n_s3_profile", required=True, help="S3 profile name for project tenant.")
     required.add_argument("--n_s3_endpoint", required=True, help="S3 endpoint url for project tenant.")
     # Parameters for pipeline
-    required.add_argument("--pipeline", choices=['vc', 'pon'], help="Calling gatk4_mutect2 on tumor normal pair or creating pon on normal", required=True)
+    required.add_argument("--pipeline", choices=['tumor_only', 'pon'], help="Calling gatk4_mutect2 on tumor only calling or creating pon on normal", required=True)
     required.add_argument("--basedir", default="/mnt/SCRATCH/", help="Base directory for computations.")
     required.add_argument("--refdir", required=True, help="Path to reference directory.")
     required.add_argument("--cwl", required=True, help="Path to CWL workflow yaml.")
+    required.add_argument("--get_metrics", required=True, help="Path to CollectSequencingArtifactMetrics CWL tool.")
     required.add_argument("--sort", required=True, help="Path to Picard sortvcf CWL tool.")
     required.add_argument("--s3dir", default="s3://", help="S3bin for uploading output files.")
     required.add_argument("--s3_profile", required=True, help="S3 profile name for project tenant.")
@@ -98,14 +99,19 @@ def run_pipeline(args, statusclass, metricsclass):
     cwl_start = time.time()
     # Getting refs
     logger.info("getting resources")
-    reference_data        = utils.pipeline.load_reference_json()
-    reference_fasta_path  = os.path.join(refdir, reference_data["reference_fasta"])
-    reference_fasta_fai   = os.path.join(refdir, reference_data["reference_fasta_index"])
-    reference_fasta_dict  = os.path.join(refdir, reference_data["reference_fasta_dict"])
-    duscb                 = reference_data["duscb"]
-    postgres_config       = os.path.join(refdir, reference_data["pg_config"])
+    reference_data = utils.pipeline.load_reference_json()
+    reference_fasta_path = os.path.join(refdir, reference_data["reference_fasta"])
+    reference_fasta_fai = os.path.join(refdir, reference_data["reference_fasta_index"])
+    reference_fasta_dict = os.path.join(refdir, reference_data["reference_fasta_dict"])
+    af_of_alleles_not_in_resource = reference_data["af_of_alleles_not_in_resource"]
+    germline_resource = os.path.join(refdir, reference_data["germline_resource"])
+    common_biallelic_variants = os.path.join(refdir, reference_data["common_biallelic_variants"])
+    panel_of_normals = os.path.join(refdir, reference_data["panel_of_normals"])
+    artifact_modes = reference_data["artifact_modes"]
+    duscb = reference_data["duscb"]
+    postgres_config = os.path.join(refdir, reference_data["pg_config"])
     # Logging pipeline info
-    cwl_version    = reference_data["cwl_version"]
+    cwl_version = reference_data["cwl_version"]
     docker_version = reference_data["docker_version"]
     logger.info("cwl_version: %s" % (cwl_version))
     logger.info("docker_version: %s" % (docker_version))
@@ -117,8 +123,7 @@ def run_pipeline(args, statusclass, metricsclass):
         normal_download_exit_code = utils.pipeline.run_command(normal_download_cmd, logger)
         download_end_time = time.time()
         download_time = download_end_time - cwl_start
-        #if not (normal_download_exit_code != 0 or str(utils.pipeline.get_file_size(normal_bam)) != args.normal_filesize):
-        if not normal_download_exit_code != 0:
+        if normal_download_exit_code == 0:
             logger.info("Download input %s successfully. Normal bam is %s." % (args.normal_gdc_id, normal_bam))
         else:
             cwl_elapsed = download_time
@@ -138,19 +143,88 @@ def run_pipeline(args, statusclass, metricsclass):
             logger.info("Failed to build bam index.")
             sys.exit(index_exit)
         else:
-            normal_bam_index = utils.pipeline.get_index(logger, inputdir, normal_bam)
+            utils.pipeline.get_index(logger, inputdir, normal_bam)
         # Create input json
         input_json_list = []
         for i, block in enumerate(utils.pipeline.fai_chunk(reference_fasta_fai, args.block)):
             input_json_file = os.path.join(jsondir, '{0}.{4}.{1}.{2}.{3}.gatk4_mutect2.pon.inputs.json'.format(str(output_id), block[0], block[1], block[2], i))
             input_json_data = {
-            "java_heap": args.java_heap,
-            "input": [{"class": "File", "path": normal_bam}],
-            "output": '{}_{}_{}.pon.vcf.gz'.format(block[0], block[1], block[2]),
-            "reference": {"class": "File", "path": reference_fasta_path},
-            "tumor_sample": args.normal_barcode,
-            "intervals": ["{0}:{1}-{2}".format(block[0], block[1], block[2])],
-            "dont_use_soft_clipped_bases": duscb
+                "java_heap": args.java_heap,
+                "input": [{"class": "File", "path": normal_bam}],
+                "output": '{}_{}_{}.pon.vcf.gz'.format(block[0], block[1], block[2]),
+                "reference": {"class": "File", "path": reference_fasta_path},
+                "tumor_sample": args.normal_barcode,
+                "intervals": ["{0}:{1}-{2}".format(block[0], block[1], block[2])],
+                "dont_use_soft_clipped_bases": duscb
+            }
+            with open(input_json_file, 'wt') as o:
+                json.dump(input_json_data, o, indent=4)
+            input_json_list.append(input_json_file)
+        logger.info("Preparing input json")
+    elif args.pipeline == 'tumor_only':
+        tumor_bam = os.path.join(inputdir, os.path.basename(args.tumor_s3_url))
+        tumor_download_cmd = utils.s3.aws_s3_get(logger, args.tumor_s3_url, inputdir,
+                                                 args.n_s3_profile, args.n_s3_endpoint, recursive=False)
+        tumor_download_exit_code = utils.pipeline.run_command(tumor_download_cmd, logger)
+        download_end_time = time.time()
+        download_time = download_end_time - cwl_start
+        if tumor_download_exit_code == 0:
+            logger.info("Download input %s successfully. Tumor bam is %s." % (args.tumor_gdc_id, tumor_bam))
+        else:
+            cwl_elapsed = download_time
+            datetime_end = str(datetime.datetime.now())
+            engine = postgres.utils.get_db_engine(postgres_config)
+            postgres.utils.set_download_error(tumor_download_exit_code, logger, engine,
+                                              args.case_id, args.tumor_gdc_id, args.tumor_gdc_id, output_id,
+                                              datetime_start, datetime_end,
+                                              hostname, cwl_version, docker_version,
+                                              download_time, cwl_elapsed, statusclass, metricsclass)
+            # Exit
+            sys.exit(tumor_download_exit_code)
+        # Build index
+        tumor_bam_index_cmd = ['samtools', 'index', tumor_bam]
+        index_exit = utils.pipeline.run_command(tumor_bam_index_cmd, logger)
+        if index_exit != 0:
+            logger.info("Failed to build bam index.")
+            sys.exit(index_exit)
+        else:
+            utils.pipeline.get_index(logger, inputdir, tumor_bam)
+        # CollectSequencingArtifactMetrics
+        os.chdir(workdir)
+        collectmetrics_cmd = ['/home/ubuntu/.virtualenvs/p2/bin/cwltool',
+                              "--debug",
+                              "--tmpdir-prefix", inputdir,
+                              "--tmp-outdir-prefix", workdir,
+                              args.get_metrics,
+                              "--java_heap", args.java_heap,
+                              "--input", tumor_bam,
+                              "--output", output_id,
+                              "--file_extension", ".txt",
+                              "--reference", reference_fasta_path]
+        metrics_exit = utils.pipeline.run_command(collectmetrics_cmd, logger)
+        if metrics_exit != 0:
+            logger.info("Failed to collect sequencing artifact metrics.")
+            sys.exit(metrics_exit)
+        else:
+            metrics = os.path.join(workdir, '{}.pre_adapter_detail_metrics.txt'.format(output_id))
+        # Create input json
+        input_json_list = []
+        for i, block in enumerate(utils.pipeline.fai_chunk(reference_fasta_fai, args.block)):
+            input_json_file = os.path.join(jsondir, '{0}.{4}.{1}.{2}.{3}.gatk4_mutect2.tumor_only.inputs.json'.format(str(output_id), block[0], block[1], block[2], i))
+            input_json_data = {
+                "java_heap": args.java_heap,
+                "tumor_bam": {"class": "File", "path": tumor_bam},
+                "tumor_barcode": args.tumor_barcode,
+                "output_prefix": '{}_{}_{}'.format(block[0], block[1], block[2]),
+                "reference": {"class": "File", "path": reference_fasta_path},
+                "af_of_alleles_not_in_resource": af_of_alleles_not_in_resource,
+                "germline_resource": {"class": "File", "path": germline_resource},
+                "intervals": ["{0}:{1}-{2}".format(block[0], block[1], block[2])],
+                "panel_of_normals": {"class": "File", "path": panel_of_normals},
+                "dont_use_soft_clipped_bases": duscb,
+                "common_biallelic_variants": {"class": "File", "path": common_biallelic_variants},
+                "metrics": {"class": "File", "path": metrics},
+                "artifact_modes": artifact_modes
             }
             with open(input_json_file, 'wt') as o:
                 json.dump(input_json_data, o, indent=4)
@@ -158,22 +232,22 @@ def run_pipeline(args, statusclass, metricsclass):
         logger.info("Preparing input json")
     else:
         # Download input
-        sys.exit('Pipeline not ready.')
+        sys.exit('Pipeline not exist.')
     # Run CWL
     os.chdir(workdir)
     logger.info('Running CWL workflow')
-    cmds = list(utils.pipeline.cmd_template(inputdir = inputdir, workdir = workdir, cwl_path = args.cwl, input_json = input_json_list))
+    cmds = list(utils.pipeline.cmd_template(inputdir=inputdir, workdir=workdir, cwl_path=args.cwl, input_json=input_json_list))
     cwl_exit = utils.pipeline.multi_commands(cmds, args.thread_count, logger)
     tmp_vcf_list = glob.glob(os.path.join(workdir, '*.vcf.gz'))
     # Create sort json
     sort_json = utils.pipeline.create_sort_json(reference_fasta_dict, str(output_id), args.pipeline, jsondir, workdir, tmp_vcf_list, logger)
     # Run Sort
     sort_cmd = ['/home/ubuntu/.virtualenvs/p2/bin/cwltool',
-               "--debug",
-               "--tmpdir-prefix", inputdir,
-               "--tmp-outdir-prefix", workdir,
-               args.sort,
-               sort_json]
+                "--debug",
+                "--tmpdir-prefix", inputdir,
+                "--tmp-outdir-prefix", workdir,
+                args.sort,
+                sort_json]
     sort_exit = utils.pipeline.run_command(sort_cmd, logger)
     cwl_exit.append(sort_exit)
     # Compress the outputs and CWL logs
