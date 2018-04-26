@@ -191,16 +191,22 @@ def run_pipeline(args, statusclass, metricsclass):
             utils.pipeline.get_index(logger, inputdir, tumor_bam)
         # CollectSequencingArtifactMetrics
         os.chdir(workdir)
+        csam_json_file = os.path.join(jsondir, 'gatk4_mutect2.collectsequencingartifactmetrics.inputs.json')
+        csam_json_data = {
+                            "java_heap": args.java_heap,
+                            "input": tumor_bam,
+                            "output": output_id,
+                            "file_extension": ".txt",
+                            "reference": reference_fasta_path
+                          }
+        with open(csam_json_file, 'wt') as o:
+            json.dump(csam_json_data, o, indent=4)
         collectmetrics_cmd = ['/home/ubuntu/.virtualenvs/p2/bin/cwltool',
                               "--debug",
                               "--tmpdir-prefix", inputdir,
                               "--tmp-outdir-prefix", workdir,
                               args.get_metrics,
-                              "--java_heap", args.java_heap,
-                              "--input", tumor_bam,
-                              "--output", output_id,
-                              "--file_extension", ".txt",
-                              "--reference", reference_fasta_path]
+                              csam_json_file]
         metrics_exit = utils.pipeline.run_command(collectmetrics_cmd, logger)
         if metrics_exit != 0:
             logger.info("Failed to collect sequencing artifact metrics.")
