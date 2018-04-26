@@ -37,7 +37,7 @@ inputs:
     type: File
     secondaryFiles:
       - '.tbi'
-  file_extension: string
+  metrics: File
   artifact_modes: string[]
 
 outputs:
@@ -100,16 +100,6 @@ steps:
       intervals: intervals
     out: [filtered_vcf]
 
-  collectsequencingartifactmetrics:
-    run: ../tools/gatk4_collectsequencingartifactmetrics.cwl
-    in:
-      java_heap: java_heap
-      input: tumor_bam
-      output: output_prefix
-      file_extension: file_extension
-      reference: reference
-    out: [metrics]
-
   filterbyorientationbias:
     run: ../tools/gatk4_filterbyorientationbias.cwl
     in:
@@ -117,7 +107,7 @@ steps:
       output:
         source: output_prefix
         valueFrom: $(self + '.mutect2.contFiltered.oxogFiltered.vcf.gz')
-      pre_adapter_detail_file: collectsequencingartifactmetrics/metrics
+      pre_adapter_detail_file: metrics
       variant: filtermutectcalls/filtered_vcf
       intervals: intervals
       reference: reference
