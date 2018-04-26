@@ -223,7 +223,7 @@ def run_pipeline(args, statusclass, metricsclass):
                 "tumor_barcode": args.tumor_barcode,
                 "output_prefix": '{}_{}_{}'.format(block[0], block[1], block[2]),
                 "reference": {"class": "File", "path": reference_fasta_path},
-                "af_of_alleles_not_in_resource": af_of_alleles_not_in_resource,
+                "af_of_alleles_not_in_resource": float(af_of_alleles_not_in_resource),
                 "germline_resource": {"class": "File", "path": germline_resource},
                 "intervals": ["{0}:{1}-{2}".format(block[0], block[1], block[2])],
                 "panel_of_normals": {"class": "File", "path": panel_of_normals},
