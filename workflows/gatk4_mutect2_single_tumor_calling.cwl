@@ -52,7 +52,9 @@ steps:
     run: ../tools/gatk4_mutect2.cwl
     in:
       java_heap: java_heap
-      input: tumor_bam
+      input:
+        source: tumor_bam
+        valueFrom: $([self])
       output:
         source: output_prefix
         valueFrom: $(self + '.mutect2.raw.vcf.gz')
