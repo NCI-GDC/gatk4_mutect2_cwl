@@ -212,6 +212,8 @@ def run_pipeline(args, statusclass, metricsclass):
             logger.info("Failed to collect sequencing artifact metrics.")
             sys.exit(metrics_exit)
         else:
+            with open(os.path.join(workdir, '{}.txt'.format(output_id)), 'r') as fh:
+                samplename = fh.readline().rstrip()
             metrics = os.path.join(workdir, '{}.pre_adapter_detail_metrics.txt'.format(output_id))
         # Create input json
         input_json_list = []
@@ -220,7 +222,7 @@ def run_pipeline(args, statusclass, metricsclass):
             input_json_data = {
                 "java_heap": args.java_heap,
                 "tumor_bam": {"class": "File", "path": tumor_bam},
-                "tumor_barcode": args.tumor_barcode,
+                "tumor_barcode": samplename,
                 "output_prefix": '{}_{}_{}'.format(block[0], block[1], block[2]),
                 "reference": {"class": "File", "path": reference_fasta_path},
                 "af_of_alleles_not_in_resource": float(af_of_alleles_not_in_resource),

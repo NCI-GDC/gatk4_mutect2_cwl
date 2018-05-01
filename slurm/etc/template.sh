@@ -65,7 +65,7 @@ unset https_proxy
 --basedir $basedir \
 --refdir $refdir \
 --cwl $basedir/gatk4_mutect2_cwl/$cwl \
---get_metrics $basedir/gatk4_mutect2_cwl/tools/gatk4_collectsequencingartifactmetrics.cwl \
+--get_metrics $basedir/gatk4_mutect2_cwl/workflows/gatk4_mutect2_prepare.cwl \
 --sort $basedir/gatk4_mutect2_cwl/tools/picard-sortvcf.cwl \
 --s3dir $s3dir \
 --s3_profile $s3_profile \
