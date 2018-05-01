@@ -39,7 +39,7 @@ outputs:
   samplename:
     type: File
     outputBinding:
-      glob: $(inputs.output + '.txt')
+      glob: $(inputs.output)
 
 baseCommand: ['java', '-d64', '-XX:+UseSerialGC']
 arguments:
