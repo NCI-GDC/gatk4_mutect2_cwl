@@ -212,7 +212,7 @@ def run_pipeline(args, statusclass, metricsclass):
             logger.info("Failed to collect sequencing artifact metrics.")
             sys.exit(metrics_exit)
         else:
-            with open(os.path.join(workdir, output_id), 'r') as fh:
+            with open(os.path.join(workdir, '{}'.format(output_id)), 'r') as fh:
                 samplename = fh.readline().rstrip()
             metrics = os.path.join(workdir, '{}.pre_adapter_detail_metrics.txt'.format(output_id))
         # Create input json
