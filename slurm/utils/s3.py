@@ -1,18 +1,29 @@
 import os
 import sys
 import subprocess
+import requests as rq
 
 import utils.pipeline
 
+def get_s3url(uuid):
+    url = rq.get('http://172.21.55.221/v0/did/{}'.format(uuid)).json()['urls'][0]
+    return url
+
 def check_s3url(s3url):
     s3 = {}
-    s3['s3url'] = s3url
-    if s3url.startswith("s3://ceph"):
+    if 'ceph' in s3url:
         s3['profile'] = 'ceph'
         s3['endpoint'] = 'http://gdc-cephb-objstore.osdc.io/'
     else:
         s3['profile'] = 'cleversafe'
         s3['endpoint'] = 'http://gdc-accessors.osdc.io/'
+    if 'cleversafe.service.consul/' in s3url:
+        url = s3url.replace('cleversafe.service.consul/', '')
+    elif 'ceph.service.consul/' in s3url:
+        url = s3url.replace('ceph.service.consul/', '')
+    else:
+        url = s3url
+    s3['s3url'] = s3url
     return s3
 
 def aws_s3_get(logger, remote_input, local_output, profile, endpoint_url, recursive=True):
