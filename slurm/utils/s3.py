@@ -23,7 +23,7 @@ def check_s3url(s3url):
         url = s3url.replace('ceph.service.consul/', '')
     else:
         url = s3url
-    s3['s3url'] = s3url
+    s3['s3url'] = url
     return s3
 
 def aws_s3_get(logger, remote_input, local_output, profile, endpoint_url, recursive=True):
