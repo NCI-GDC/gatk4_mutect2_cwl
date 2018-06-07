@@ -26,6 +26,8 @@ inputs:
   panel_of_normal_index_gdc_id: string
   upload_bucket: string
 ###GENERAL_INPUTS###
+  project_id: string?
+  experimental_strategy: string?
   usedecoy:
     type: boolean
     default: false
@@ -58,11 +60,19 @@ outputs:
   single_tumor_vcf_uuid:
     type: string
     outputSource: uuid_single_tumor_vcf/output
-  single_tumor_vcf:
+  single_tumor_vcf_index_uuid:
     type: File
-    outputSource: filterbyorientationbias/oxog_filtered_vcf
+    outputSource: uuid_single_tumor_vcf_index/output
 
 steps:
+  prepare_file_prefix:
+    run: ../utils-cwl/make_prefix.cwl
+    in:
+      project_id: project_id
+      job_id: job_uuid
+      experimental_strategy: experimental_strategy
+  out: [output_prefix]
+
   preparation:
     run: ../utils-cwl/subworkflow/preparation_workflow.cwl
     in:
@@ -95,7 +105,7 @@ steps:
       java_heap: java_heap
       input: preparation/tumor_with_index
       output:
-        source: job_uuid
+        source: prepare_file_prefix/output_prefix
         valueFrom: $(self + '.sample_name')
     out: [samplename]
 
@@ -130,7 +140,7 @@ steps:
         source: preparation/reference_with_index
         valueFrom: $(self.secondaryFiles[1])
       output_vcf:
-        source: job_uuid
+        source: prepare_file_prefix/output_prefix
         valueFrom: $(self + '.mutect2.singletumor.sorted.vcf.gz')
       input_vcf:
         source: mutect2_call/output_vcf
@@ -143,7 +153,7 @@ steps:
       java_heap: java_heap
       input: preparation/tumor_with_index
       output:
-        source: job_uuid
+        source: prepare_file_prefix/output_prefix
         valueFrom: $(self + '.table')
       variant: preparation/common_biallelic_variants_with_index
       intervals: faidx_to_bed/output_bed
@@ -156,7 +166,7 @@ steps:
       java_heap: java_heap
       input: getpileupsummaries_on_tumor/pileup_table
       output:
-        source: job_uuid
+        source: prepare_file_prefix/output_prefix
         valueFrom: $(self + '.contamination.table')
     out: [contamination_table]
 
@@ -165,7 +175,7 @@ steps:
     in:
       java_heap: java_heap
       output:
-        source: job_uuid
+        source: prepare_file_prefix/output_prefix
         valueFrom: $(self + '.mutect2.singletumor.contFiltered.vcf.gz')
       variant: sort_vcf/sorted_vcf
       contamination_table: calculatecontamination_on_tumor/contamination_table
@@ -177,7 +187,7 @@ steps:
     in:
       java_heap: java_heap
       output:
-        source: job_uuid
+        source: prepare_file_prefix/output_prefix
         valueFrom: $(self + '.mutect2.singletumor.contFiltered.oxogFiltered.vcf.gz')
       pre_adapter_detail_file: get_oxog_metrics/metrics
       variant: filtermutectcalls/filtered_vcf
@@ -197,10 +207,31 @@ steps:
       local_file: filterbyorientationbias/oxog_filtered_vcf
     out: [output]
 
+  upload_single_tumor_vcf_index:
+    run: ../utils-cwl/bio_client/bio_client_upload_pull_uuid.cwl
+    in:
+      config_file: bioclient_config
+      upload_bucket: upload_bucket
+      upload_key:
+        source: [job_uuid, filterbyorientationbias/oxog_filtered_vcf]
+        valueFrom: $(self[0])/$(self[1].secondaryFiles[0].basename)
+      local_file:
+        source: filterbyorientationbias/oxog_filtered_vcf
+        valueFrom: $(self.secondaryFiles[0])
+    out: [output]
+
   uuid_single_tumor_vcf:
     run: ../utils-cwl/emit_json_value.cwl
     in:
       input: upload_single_tumor_vcf/output
       key:
        valueFrom: 'did'
+    out: [output]
+
+  uuid_single_tumor_vcf_index:
+    run: ../utils-cwl/emit_json_value.cwl
+    in:
+      input: upload_single_tumor_vcf_index/output
+      key:
+        valueFrom: 'did'
     out: [output]
