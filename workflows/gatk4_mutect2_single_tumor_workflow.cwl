@@ -71,7 +71,7 @@ steps:
       project_id: project_id
       job_id: job_uuid
       experimental_strategy: experimental_strategy
-  out: [output_prefix]
+    out: [output_prefix]
 
   preparation:
     run: ../utils-cwl/subworkflow/preparation_workflow.cwl
