@@ -53,77 +53,77 @@ outputs:
 
 steps:
   tumor_download:
-    run: ../bioclient/tools/bio_client_download.cwl
+    run: ../bio_client/bio_client_download.cwl
     in:
       config_file: bioclient_config
       download_handle: tumor_gdc_id
     out: [output]
 
   tumor_index_download:
-    run: ../bioclient/tools/bio_client_download.cwl
+    run: ../bio_client/bio_client_download.cwl
     in:
       config_file: bioclient_config
       download_handle: tumor_index_gdc_id
     out: [output]
 
   reference_dict_download:
-    run: ../bioclient/tools/bio_client_download.cwl
+    run: ../bio_client/bio_client_download.cwl
     in:
       config_file: bioclient_config
       download_handle: reference_dict_gdc_id
     out: [output]
 
   reference_fa_download:
-    run: ../bioclient/tools/bio_client_download.cwl
+    run: ../bio_client/bio_client_download.cwl
     in:
       config_file: bioclient_config
       download_handle: reference_fa_gdc_id
     out: [output]
 
   reference_fai_download:
-    run: ../bioclient/tools/bio_client_download.cwl
+    run: ../bio_client/bio_client_download.cwl
     in:
       config_file: bioclient_config
       download_handle: reference_fai_gdc_id
     out: [output]
 
   germline_resource_download:
-    run: ../bioclient/tools/bio_client_download.cwl
+    run: ../bio_client/bio_client_download.cwl
     in:
       config_file: bioclient_config
       download_handle: germline_resource_gdc_id
     out: [output]
 
   germline_resource_index_download:
-    run: ../bioclient/tools/bio_client_download.cwl
+    run: ../bio_client/bio_client_download.cwl
     in:
       config_file: bioclient_config
       download_handle: germline_resource_index_gdc_id
     out: [output]
 
   common_biallelic_variants_download:
-    run: ../bioclient/tools/bio_client_download.cwl
+    run: ../bio_client/bio_client_download.cwl
     in:
       config_file: bioclient_config
       download_handle: common_biallelic_variants_gdc_id
     out: [output]
 
   common_biallelic_variants_index_download:
-    run: ../bioclient/tools/bio_client_download.cwl
+    run: ../bio_client/bio_client_download.cwl
     in:
       config_file: bioclient_config
       download_handle: common_biallelic_variants_index_gdc_id
     out: [output]
 
   panel_of_normal_download:
-    run: ../bioclient/tools/bio_client_download.cwl
+    run: ../bio_client/bio_client_download.cwl
     in:
       config_file: bioclient_config
       download_handle: panel_of_normal_gdc_id
     out: [output]
 
   panel_of_normal_index_download:
-    run: ../bioclient/tools/bio_client_download.cwl
+    run: ../bio_client/bio_client_download.cwl
     in:
       config_file: bioclient_config
       download_handle: panel_of_normal_index_gdc_id
