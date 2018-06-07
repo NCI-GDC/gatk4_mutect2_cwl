@@ -61,7 +61,7 @@ outputs:
     type: string
     outputSource: uuid_single_tumor_vcf/output
   single_tumor_vcf_index_uuid:
-    type: File
+    type: string
     outputSource: uuid_single_tumor_vcf_index/output
 
 steps:
