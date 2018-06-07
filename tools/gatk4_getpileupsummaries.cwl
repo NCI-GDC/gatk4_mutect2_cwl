@@ -7,7 +7,7 @@ class: CommandLineTool
 requirements:
   - class: InlineJavascriptRequirement
   - class: DockerRequirement
-    dockerPull: broadinstitute/gatk:4.0.3.0
+    dockerPull: broadinstitute/gatk:4.0.4.0
   - class: ResourceRequirement
     coresMax: 1
 
@@ -45,7 +45,8 @@ inputs:
       - '.tbi'
 
   intervals:
-    type: string[]?
+    type: File?
+    doc: One or more genomic intervals over which to operate.
     inputBinding:
       position: 6
       prefix: -L

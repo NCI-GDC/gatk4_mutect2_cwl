@@ -7,7 +7,7 @@ class: CommandLineTool
 requirements:
   - class: InlineJavascriptRequirement
   - class: DockerRequirement
-    dockerPull: broadinstitute/gatk:4.0.3.0
+    dockerPull: broadinstitute/gatk:4.0.4.0
   - class: ResourceRequirement
     coresMax: 1
 
@@ -37,6 +37,7 @@ inputs:
 
   file_extension:
     type: string
+    default: '.txt'
     inputBinding:
       position: 5
       prefix: --FILE_EXTENSION
