@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-'''Internal multithreading GATK4 MuTect2 single tumor calling'''
+'''Internal multithreading GATK4 MuTect2 tumor only calling'''
 
 import argparse
 import subprocess
@@ -69,7 +69,7 @@ def cmd_template(java_heap, gatk_path, ref, region, tumor_bam, tumor_sample, pon
 
 def main():
     '''main'''
-    parser = argparse.ArgumentParser('Internal multithreading GATK4 MuTect2 single tumor calling.')
+    parser = argparse.ArgumentParser('Internal multithreading GATK4 MuTect2 tumor only calling.')
     # Required flags.
     parser.add_argument('-j', '--java_heap', required=True, help='Java heap memory.')
     parser.add_argument('-f', '--reference_path', required=True, help='Reference path.')
@@ -96,11 +96,11 @@ def main():
     mutect2_cmds = list(cmd_template(java_heap, gatk_path, ref, get_region(interval), tumor, tumor_sample, pon, af, gr, mode))
     outputs = multi_commands(mutect2_cmds, threads)
     if any(x != 0 for x in outputs):
-        print('Failed multi_gatk4_mutect2_single_tumor_calling')
+        print('Failed multi_gatk4_mutect2_tumor_only_calling')
     else:
-        print('Completed multi_gatk4_mutect2_single_tumor_calling')
+        print('Completed multi_gatk4_mutect2_tumor_only_calling')
         first = True
-        with open('merged_multi_gatk4_mutect2_single_tumor_calling.vcf', 'w') as oh:
+        with open('merged_multi_gatk4_mutect2_tumor_only_calling.vcf', 'w') as oh:
             for cmd, out in mutect2_cmds:
                 with open(out) as fh:
                     for line in fh:

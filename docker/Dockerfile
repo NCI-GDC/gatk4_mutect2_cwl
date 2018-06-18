@@ -10,6 +10,6 @@ RUN apt-get update && apt-get install -y --force-yes \
 RUN cd /bin && curl -LO https://github.com/broadinstitute/gatk/releases/download/4.0.4.0/gatk-4.0.4.0.zip \
     && unzip gatk-4.0.4.0.zip && rm /bin/gatk-4.0.4.0.zip
 
-ADD multi_mutect2_single_tumor.py /bin/
+ADD multi_mutect2_tumor_only.py /bin/
 
-ENV multi_mutect2_single_tumor v1.0
+ENV multi_mutect2_tumor_only v1.0

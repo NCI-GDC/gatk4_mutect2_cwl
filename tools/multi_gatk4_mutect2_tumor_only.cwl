@@ -7,7 +7,7 @@ class: CommandLineTool
 requirements:
   - class: InlineJavascriptRequirement
   - class: DockerRequirement
-    dockerPull: quay.io/ncigdc/gatk4_mutect2_single_tumor:1.0
+    dockerPull: quay.io/ncigdc/gatk4_mutect2_tumor_only:1.0
   - class: ResourceRequirement
     coresMax: 1
 
@@ -98,9 +98,9 @@ outputs:
   output_vcf:
     type: File
     outputBinding:
-      glob: 'merged_multi_gatk4_mutect2_single_tumor_calling.vcf'
+      glob: 'merged_multi_gatk4_mutect2_tumor_only_calling.vcf'
 
-baseCommand: ['python', '/bin/multi_mutect2_single_tumor.py']
+baseCommand: ['python', '/bin/multi_mutect2_tumor_only.py']
 arguments:
   - valueFrom: $(inputs.tumor_sample.contents)
     prefix: -ts

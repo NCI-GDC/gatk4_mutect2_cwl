@@ -57,12 +57,12 @@ inputs:
     doc: Sequencing contexts for FFPE (C→T transition) and OxoG (G→T transversion).
 
 outputs:
-  single_tumor_vcf_uuid:
+  tumor_only_vcf_uuid:
     type: string
-    outputSource: uuid_single_tumor_vcf/output
-  single_tumor_vcf_index_uuid:
+    outputSource: uuid_tumor_only_vcf/output
+  tumor_only_vcf_index_uuid:
     type: string
-    outputSource: uuid_single_tumor_vcf_index/output
+    outputSource: uuid_tumor_only_vcf_index/output
 
 steps:
   prepare_file_prefix:
@@ -119,7 +119,7 @@ steps:
     out: [metrics]
 
   mutect2_call:
-    run: ../tools/multi_gatk4_mutect2_single_tumor.cwl
+    run: ../tools/multi_gatk4_mutect2_tumor_only.cwl
     in:
       threads: threads
       java_heap: java_heap
@@ -141,7 +141,7 @@ steps:
         valueFrom: $(self.secondaryFiles[1])
       output_vcf:
         source: prepare_file_prefix/output_prefix
-        valueFrom: $(self + '.mutect2.singletumor.sorted.vcf.gz')
+        valueFrom: $(self + '.mutect2.tumor_only.sorted.vcf.gz')
       input_vcf:
         source: mutect2_call/output_vcf
         valueFrom: $([self])
@@ -176,7 +176,7 @@ steps:
       java_heap: java_heap
       output:
         source: prepare_file_prefix/output_prefix
-        valueFrom: $(self + '.mutect2.singletumor.contFiltered.vcf.gz')
+        valueFrom: $(self + '.mutect2.tumor_only.contFiltered.vcf.gz')
       variant: sort_vcf/sorted_vcf
       contamination_table: calculatecontamination_on_tumor/contamination_table
       intervals: faidx_to_bed/output_bed
@@ -188,7 +188,7 @@ steps:
       java_heap: java_heap
       output:
         source: prepare_file_prefix/output_prefix
-        valueFrom: $(self + '.mutect2.singletumor.contFiltered.oxogFiltered.vcf.gz')
+        valueFrom: $(self + '.mutect2.tumor_only.contFiltered.oxogFiltered.vcf.gz')
       pre_adapter_detail_file: get_oxog_metrics/metrics
       variant: filtermutectcalls/filtered_vcf
       intervals: faidx_to_bed/output_bed
@@ -196,7 +196,7 @@ steps:
       artifact_modes: artifact_modes
     out: [oxog_filtered_vcf]
 
-  upload_single_tumor_vcf:
+  upload_tumor_only_vcf:
     run: ../utils-cwl/bio_client/bio_client_upload_pull_uuid.cwl
     in:
       config_file: bioclient_config
@@ -207,7 +207,7 @@ steps:
       local_file: filterbyorientationbias/oxog_filtered_vcf
     out: [output]
 
-  upload_single_tumor_vcf_index:
+  upload_tumor_only_vcf_index:
     run: ../utils-cwl/bio_client/bio_client_upload_pull_uuid.cwl
     in:
       config_file: bioclient_config
@@ -220,18 +220,18 @@ steps:
         valueFrom: $(self.secondaryFiles[0])
     out: [output]
 
-  uuid_single_tumor_vcf:
+  uuid_tumor_only_vcf:
     run: ../utils-cwl/emit_json_value.cwl
     in:
-      input: upload_single_tumor_vcf/output
+      input: upload_tumor_only_vcf/output
       key:
        valueFrom: 'did'
     out: [output]
 
-  uuid_single_tumor_vcf_index:
+  uuid_tumor_only_vcf_index:
     run: ../utils-cwl/emit_json_value.cwl
     in:
-      input: upload_single_tumor_vcf_index/output
+      input: upload_tumor_only_vcf_index/output
       key:
         valueFrom: 'did'
     out: [output]
