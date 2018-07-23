@@ -188,7 +188,7 @@ steps:
       java_heap: java_heap
       output:
         source: prepare_file_prefix/output_prefix
-        valueFrom: $(self + '.mutect2.tumor_only.contFiltered.oxogFiltered.vcf.gz')
+        valueFrom: $(self + '.tumor_only.gatk4_mutect2.raw_somatic_mutation.vcf.gz')
       pre_adapter_detail_file: get_oxog_metrics/metrics
       variant: filtermutectcalls/filtered_vcf
       intervals: faidx_to_bed/output_bed
