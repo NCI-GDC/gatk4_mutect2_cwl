@@ -22,7 +22,7 @@ inputs:
       separate: false
 
   input:
-    type: File
+    type: File?
     inputBinding:
       position: 3
       prefix: -I
