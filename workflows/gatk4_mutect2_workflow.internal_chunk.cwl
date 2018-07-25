@@ -9,12 +9,15 @@ requirements:
   - class: StepInputExpressionRequirement
   - class: MultipleInputFeatureRequirement
   - class: SubworkflowFeatureRequirement
+  - class: ScatterFeatureRequirement
 
 inputs:
 ###BIOCLIENT_INPUTS###
   bioclient_config: File
   tumor_gdc_id: string
   tumor_index_gdc_id: string
+  normal_gdc_id: string?
+  normal_index_gdc_id: string?
   reference_gdc_id: string
   reference_faidx_gdc_id: string
   reference_dict_gdc_id: string
@@ -55,19 +58,22 @@ inputs:
     type: string[]
     default: ["G/T", "C/T"]
     doc: Sequencing contexts for FFPE (C→T transition) and OxoG (G→T transversion).
+###CONDITIONAL_INPUTS###
+  has_normal: int[]
 
 outputs:
-  tumor_only_vcf_uuid:
+  gatk4_mutect2_vcf_uuid:
     type: string
-    outputSource: uuid_tumor_only_vcf/output
-  tumor_only_vcf_index_uuid:
+    outputSource: uuid_vcf/output
+  gatk4_mutect2_vcf_index_uuid:
     type: string
-    outputSource: uuid_tumor_only_vcf_index/output
+    outputSource: uuid_vcf_index/output
 
 steps:
   prepare_file_prefix:
     run: ../utils-cwl/make_prefix.cwl
     in:
+      has_normal: has_normal
       project_id: project_id
       job_id: job_uuid
       experimental_strategy: experimental_strategy
@@ -77,8 +83,11 @@ steps:
     run: ../utils-cwl/subworkflow/preparation_workflow.cwl
     in:
       bioclient_config: bioclient_config
+      has_normal: has_normal
       tumor_gdc_id: tumor_gdc_id
       tumor_index_gdc_id: tumor_index_gdc_id
+      normal_gdc_id: normal_gdc_id
+      normal_index_gdc_id: normal_index_gdc_id
       reference_fa_gdc_id: reference_gdc_id
       reference_fai_gdc_id: reference_faidx_gdc_id
       reference_dict_gdc_id: reference_dict_gdc_id
@@ -88,7 +97,7 @@ steps:
       common_biallelic_variants_index_gdc_id: common_biallelic_variants_index_gdc_id
       panel_of_normal_gdc_id: panel_of_normal_gdc_id
       panel_of_normal_index_gdc_id: panel_of_normal_index_gdc_id
-    out: [tumor_with_index, reference_with_index, germline_resource_with_index, common_biallelic_variants_with_index, panel_of_normal_with_index]
+    out: [tumor_with_index, normal_with_index, reference_with_index, germline_resource_with_index, common_biallelic_variants_with_index, panel_of_normal_with_index]
 
   faidx_to_bed:
     run: ../utils-cwl/faidx_to_bed.cwl
@@ -106,26 +115,37 @@ steps:
       input: preparation/tumor_with_index
       output:
         source: prepare_file_prefix/output_prefix
-        valueFrom: $(self + '.sample_name')
+        valueFrom: $(self + '.tumor.sample_name')
     out: [samplename]
 
-  get_oxog_metrics:
-    run: ../tools/gatk4_collectsequencingartifactmetrics.cwl
+  get_normal_sample_name:
+    run: ../tools/gatk4_getsamplename.cwl
+    scatter: has_normal
     in:
+      has_normal: has_normal
       java_heap: java_heap
-      input: preparation/tumor_with_index
-      output: job_uuid
-      reference: preparation/reference_with_index
-    out: [metrics]
+      input: preparation/normal_with_index
+      output:
+        source: prepare_file_prefix/output_prefix
+        valueFrom: $(self + '.normal.sample_name')
+    out: [samplename]
+
+  extract_normal_sample_name:
+    run: ../utils-cwl/extract_from_conditional_array.cwl
+    in:
+      input_array: get_normal_sample_name/samplename
+    out: [input_file]
 
   mutect2_call:
-    run: ../tools/multi_gatk4_mutect2_tumor_only.cwl
+    run: ../tools/gatk4_multi_mutect2.cwl
     in:
       threads: threads
       java_heap: java_heap
-      input: preparation/tumor_with_index
+      tumor_input: preparation/tumor_with_index
       reference: preparation/reference_with_index
       tumor_sample: get_tumor_sample_name/samplename
+      normal_input: preparation/normal_with_index
+      normal_sample: extract_normal_sample_name/input_file
       af_of_alleles_not_in_resource: af_of_alleles_not_in_resource
       germline_resource: preparation/germline_resource_with_index
       intervals: faidx_to_bed/output_bed
@@ -141,97 +161,63 @@ steps:
         valueFrom: $(self.secondaryFiles[1])
       output_vcf:
         source: prepare_file_prefix/output_prefix
-        valueFrom: $(self + '.mutect2.tumor_only.sorted.vcf.gz')
+        valueFrom: $(self + 'gatk4_mutect2.sorted.vcf.gz')
       input_vcf:
         source: mutect2_call/output_vcf
         valueFrom: $([self])
     out: [sorted_vcf]
 
-  getpileupsummaries_on_tumor:
-    run: ../tools/gatk4_getpileupsummaries.cwl
+  filtration:
+    run: ../utils-cwl/subworkflow/gatk4_mutect2_filtration.cwl
     in:
+      has_normal: has_normal
       java_heap: java_heap
-      input: preparation/tumor_with_index
-      output:
-        source: prepare_file_prefix/output_prefix
-        valueFrom: $(self + '.table')
-      variant: preparation/common_biallelic_variants_with_index
-      intervals: faidx_to_bed/output_bed
-      reference: preparation/reference_with_index
-    out: [pileup_table]
-
-  calculatecontamination_on_tumor:
-    run: ../tools/gatk4_calculatecontamination.cwl
-    in:
-      java_heap: java_heap
-      input: getpileupsummaries_on_tumor/pileup_table
-      output:
-        source: prepare_file_prefix/output_prefix
-        valueFrom: $(self + '.contamination.table')
-    out: [contamination_table]
-
-  filtermutectcalls:
-    run: ../tools/gatk4_filtermutectcalls.cwl
-    in:
-      java_heap: java_heap
-      output:
-        source: prepare_file_prefix/output_prefix
-        valueFrom: $(self + '.mutect2.tumor_only.contFiltered.vcf.gz')
-      variant: sort_vcf/sorted_vcf
-      contamination_table: calculatecontamination_on_tumor/contamination_table
-      intervals: faidx_to_bed/output_bed
-    out: [filtered_vcf]
-
-  filterbyorientationbias:
-    run: ../tools/gatk4_filterbyorientationbias.cwl
-    in:
-      java_heap: java_heap
-      output:
-        source: prepare_file_prefix/output_prefix
-        valueFrom: $(self + '.mutect2.tumor_only.contFiltered.oxogFiltered.vcf.gz')
-      pre_adapter_detail_file: get_oxog_metrics/metrics
-      variant: filtermutectcalls/filtered_vcf
-      intervals: faidx_to_bed/output_bed
-      reference: preparation/reference_with_index
+      output_prefix: prepare_file_prefix/output_prefix
+      tumor_with_index: preparation/tumor_with_index
+      reference_with_index: preparation/reference_with_index
+      common_biallelic_variants_with_index: preparation/common_biallelic_variants_with_index
+      input_bed: faidx_to_bed/output_bed
+      sorted_vcf: sort_vcf/sorted_vcf
+      normal_with_index: preparation/normal_with_index
       artifact_modes: artifact_modes
-    out: [oxog_filtered_vcf]
+    out: [contFiltered_oxogFiltered_vcf]
 
-  upload_tumor_only_vcf:
+  upload_vcf:
     run: ../utils-cwl/bio_client/bio_client_upload_pull_uuid.cwl
     in:
       config_file: bioclient_config
       upload_bucket: upload_bucket
       upload_key:
-        source: [job_uuid, filterbyorientationbias/oxog_filtered_vcf]
+        source: [job_uuid, filtration/contFiltered_oxogFiltered_vcf]
         valueFrom: $(self[0])/$(self[1].basename)
-      local_file: filterbyorientationbias/oxog_filtered_vcf
+      local_file: filtration/contFiltered_oxogFiltered_vcf
     out: [output]
 
-  upload_tumor_only_vcf_index:
+  upload_vcf_index:
     run: ../utils-cwl/bio_client/bio_client_upload_pull_uuid.cwl
     in:
       config_file: bioclient_config
       upload_bucket: upload_bucket
       upload_key:
-        source: [job_uuid, filterbyorientationbias/oxog_filtered_vcf]
+        source: [job_uuid, filtration/contFiltered_oxogFiltered_vcf]
         valueFrom: $(self[0])/$(self[1].secondaryFiles[0].basename)
       local_file:
-        source: filterbyorientationbias/oxog_filtered_vcf
+        source: filtration/contFiltered_oxogFiltered_vcf
         valueFrom: $(self.secondaryFiles[0])
     out: [output]
 
-  uuid_tumor_only_vcf:
+  uuid_vcf:
     run: ../utils-cwl/emit_json_value.cwl
     in:
-      input: upload_tumor_only_vcf/output
+      input: upload_vcf/output
       key:
        valueFrom: 'did'
     out: [output]
 
-  uuid_tumor_only_vcf_index:
+  uuid_vcf_index:
     run: ../utils-cwl/emit_json_value.cwl
     in:
-      input: upload_tumor_only_vcf_index/output
+      input: upload_vcf_index/output
       key:
         valueFrom: 'did'
     out: [output]

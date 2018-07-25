@@ -7,14 +7,21 @@ class: Workflow
 requirements:
   - class: SubworkflowFeatureRequirement
   - class: MultipleInputFeatureRequirement
+  - class: ScatterFeatureRequirement
 
 inputs:
   bioclient_config:
     type: File
+  has_normal:
+    type: int[]
   tumor_gdc_id:
     type: string
   tumor_index_gdc_id:
     type: string
+  normal_gdc_id:
+    type: string?
+  normal_index_gdc_id:
+    type: string?
   reference_dict_gdc_id:
     type: string
   reference_fa_gdc_id:
@@ -38,6 +45,9 @@ outputs:
   tumor_with_index:
     type: File
     outputSource: stage/tumor_with_index
+  normal_with_index:
+    type: File?
+    outputSource: stage/normal_with_index
   reference_with_index:
     type: File
     outputSource: stage/reference_with_index
@@ -65,6 +75,36 @@ steps:
       config_file: bioclient_config
       download_handle: tumor_index_gdc_id
     out: [output]
+
+  normal_download:
+    run: ../bio_client/bio_client_download.cwl
+    scatter: has_normal
+    in:
+      has_normal: has_normal
+      config_file: bioclient_config
+      download_handle: normal_gdc_id
+    out: [output]
+
+  normal_index_download:
+    run: ../bio_client/bio_client_download.cwl
+    scatter: has_normal
+    in:
+      has_normal: has_normal
+      config_file: bioclient_config
+      download_handle: normal_index_gdc_id
+    out: [output]
+
+  extract_normal:
+    run: ../extract_from_conditional_array.cwl
+    in:
+      input_array: normal_download/output
+    out: [input_file]
+
+  extract_normal_index:
+    run: ../extract_from_conditional_array.cwl
+    in:
+      input_array: normal_index_download/output
+    out: [input_file]
 
   reference_dict_download:
     run: ../bio_client/bio_client_download.cwl
@@ -132,8 +172,11 @@ steps:
   stage:
     run: ./stage_workflow.cwl
     in:
+      has_normal: has_normal
       tumor: tumor_download/output
       tumor_index: tumor_index_download/output
+      normal: extract_normal/input_file
+      normal_index: extract_normal_index/input_file
       reference: reference_fa_download/output
       reference_fai: reference_fai_download/output
       reference_dict: reference_dict_download/output
@@ -143,4 +186,4 @@ steps:
       biallelic_ref_index: common_biallelic_variants_index_download/output
       pon: panel_of_normal_download/output
       pon_index: panel_of_normal_index_download/output
-    out: [tumor_with_index, reference_with_index, germline_ref_with_index, biallelic_ref_with_index, pon_with_index]
+    out: [tumor_with_index, normal_with_index, reference_with_index, germline_ref_with_index, biallelic_ref_with_index, pon_with_index]
