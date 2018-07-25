@@ -105,7 +105,7 @@ steps:
       java_heap: java_heap
       output:
         source: output_prefix
-        valueFrom: $(self + '.mutect2.tumor_only.contFiltered.vcf.gz')
+        valueFrom: $(self + '.contFiltered.vcf.gz')
       variant: sorted_vcf
       contamination_table: calculatecontamination/contamination_table
       intervals: input_bed
@@ -117,7 +117,7 @@ steps:
       java_heap: java_heap
       output:
         source: output_prefix
-        valueFrom: $(self + '.mutect2.tumor_only.contFiltered.oxogFiltered.vcf.gz')
+        valueFrom: $(self + '.gatk4_mutect2.raw_somatic_mutation.vcf.gz')
       pre_adapter_detail_file: get_oxog_metrics/metrics
       variant: filtermutectcalls/filtered_vcf
       intervals: input_bed
