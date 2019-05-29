@@ -66,7 +66,7 @@ outputs:
 
 steps:
   prepare_file_prefix:
-    run: ../utils-cwl/make_prefix.cwl
+    run: ../../utils-cwl/make_prefix.cwl
     in:
       project_id: project_id
       job_id: job_uuid
@@ -74,7 +74,7 @@ steps:
     out: [output_prefix]
 
   preparation:
-    run: ../utils-cwl/subworkflow/preparation_workflow.cwl
+    run: ../../utils-cwl/subworkflow/preparation_workflow.cwl
     in:
       bioclient_config: bioclient_config
       tumor_gdc_id: tumor_gdc_id
@@ -91,7 +91,7 @@ steps:
     out: [tumor_with_index, reference_with_index, germline_resource_with_index, common_biallelic_variants_with_index, panel_of_normal_with_index]
 
   faidx_to_bed:
-    run: ../utils-cwl/faidx_to_bed.cwl
+    run: ../../utils-cwl/faidx_to_bed.cwl
     in:
       ref_fai:
         source: preparation/reference_with_index
@@ -197,7 +197,7 @@ steps:
     out: [oxog_filtered_vcf]
 
   upload_tumor_only_vcf:
-    run: ../utils-cwl/bio_client/bio_client_upload_pull_uuid.cwl
+    run: ../../utils-cwl/bio_client/bio_client_upload_pull_uuid.cwl
     in:
       config_file: bioclient_config
       upload_bucket: upload_bucket
@@ -208,7 +208,7 @@ steps:
     out: [output]
 
   upload_tumor_only_vcf_index:
-    run: ../utils-cwl/bio_client/bio_client_upload_pull_uuid.cwl
+    run: ../../utils-cwl/bio_client/bio_client_upload_pull_uuid.cwl
     in:
       config_file: bioclient_config
       upload_bucket: upload_bucket
@@ -221,7 +221,7 @@ steps:
     out: [output]
 
   uuid_tumor_only_vcf:
-    run: ../utils-cwl/emit_json_value.cwl
+    run: ../../utils-cwl/emit_json_value.cwl
     in:
       input: upload_tumor_only_vcf/output
       key:
@@ -229,7 +229,7 @@ steps:
     out: [output]
 
   uuid_tumor_only_vcf_index:
-    run: ../utils-cwl/emit_json_value.cwl
+    run: ../../utils-cwl/emit_json_value.cwl
     in:
       input: upload_tumor_only_vcf_index/output
       key:
