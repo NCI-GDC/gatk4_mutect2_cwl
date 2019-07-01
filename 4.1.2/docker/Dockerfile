@@ -10,4 +10,4 @@ RUN apt-get update && apt-get install -y --force-yes \
 RUN cd /opt && curl -LO https://github.com/broadinstitute/gatk/releases/download/4.1.2.0/gatk-4.1.2.0.zip \
     && unzip gatk-4.1.2.0.zip && rm /opt/gatk-4.1.2.0.zip
 
-ADD multi_mutect2_tumor_only.py /opt/
+ADD gatk4_multithread_mutect2.py /opt/
