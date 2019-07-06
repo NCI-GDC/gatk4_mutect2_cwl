@@ -27,7 +27,6 @@ inputs:
       inputBinding:
         prefix: --input
     secondaryFiles: [^.bai]
-
   output_prefix:
     type: string
     inputBinding:
@@ -41,6 +40,15 @@ inputs:
     type: File
     inputBinding:
       prefix: --intervals
+  # wrapper params
+  bam_output:
+    type: boolean?
+    inputBinding:
+      prefix: --bam-output
+  f1r2_tar_gz:
+    type: boolean?
+    inputBinding:
+      prefix: --f1r2-tar-gz
   # optional params
   active_probability_threshold:
     type: float?
@@ -62,10 +70,6 @@ inputs:
     type: int?
     inputBinding:
       prefix: --assembly-region-padding
-  bam_output:
-    type: string?
-    inputBinding:
-      prefix: --bam-output
   bam_writer_type:
     type: string?
     inputBinding:
@@ -130,10 +134,6 @@ inputs:
     type: int?
     inputBinding:
       prefix: --f1r2-min-bq
-  f1r2_tar_gz:
-    type: boolean?
-    inputBinding:
-      prefix: --f1r2-tar-gz
   force_active:
     type: boolean?
     inputBinding:
@@ -314,6 +314,13 @@ outputs:
     type: File[]
     outputBinding:
       glob: '*vcf.gz'
+    secondaryFiles: [.tbi]
+
+  reassembly:
+    type: File[]?
+    outputBinding:
+      glob: '*reassembly.bam'
+    secondaryFiles: [^.bai]
 
   f1r2s:
     type: File[]?

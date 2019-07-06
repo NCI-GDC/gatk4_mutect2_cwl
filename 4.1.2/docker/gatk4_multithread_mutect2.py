@@ -33,7 +33,7 @@ def get_args():
     optional.add_argument('--af-of-alleles-not-in-resource', required=False, help='Population allele fraction assigned to alleles not found in germline resource. Please see docs/mutect/mutect2.pdf fora derivation of the.')
     optional.add_argument('--allow-non-unique-kmers-in-ref', required=False, help='Allow graphs that have non-unique kmers in the reference.', action='store_true')
     optional.add_argument('--assembly-region-padding', required=False, help='Number of additional bases of context to include around each assembly region.')
-    optional.add_argument('--bam-output', required=False, help='File to which assembled haplotypes should be written.')
+    optional.add_argument('--bam-output', required=False, help='If specified, assembled haplotypes wil be written to bam.', action='store_true')
     optional.add_argument('--bam-writer-type', required=False, help='Which haplotypes should be written to the BAM.')
     optional.add_argument('--base-quality-score-threshold', required=False, help='Base qualities below this threshold will be reduced to the minimum (6).')
     optional.add_argument('--callable-depth', required=False, help='Minimum depth to be considered callable for Mutect stats. Does not affect genotyping.')
@@ -111,7 +111,7 @@ def prepare_cmd_args(args):
     returns: An argument file for the gatk command
     '''
     arg_file = 'argument_file'
-    exclude = ['output', 'f1r2_tar_gz', 'intervals','nthreads', 'java_heap']
+    exclude = ['output', 'f1r2_tar_gz', 'bam_output', 'intervals','nthreads', 'java_heap']
     dct = vars(args)
     cmds = list()
     for k, v in dct.items():
@@ -131,10 +131,11 @@ def prepare_cmd_args(args):
         'output_prefix': args.output,
         'intervals': args.intervals,
         'f1r2': args.f1r2_tar_gz,
+        'bamout': args.bam_output,
         'nthreads': args.nthreads,
         'java_heap': args.java_heap,
         'arg_file': os.path.abspath(arg_file),
-        'gatk4': '/opt/gatk-4.1.2.0/gatk-package-4.1.2.0-local.jar'
+        'gatk4': '/opt/gatk-4.1.2.0/gatk'
     }
 
 def do_pool_commands(cmd, lock=Lock(), shell_var=True):
@@ -173,7 +174,7 @@ def cmd_template(params):
     params: dict from prepare_cmd_args
     '''
     template = string.Template(
-        "java -d64 -jar -XX:+UseSerialGC -Xmx${JAVA_HEAP} ${GATK_PATH} Mutect2 --intervals ${REGION} --arguments_file ${ARGS} --output ${OUTPUT}.${BLOCK_NUM}.vcf.gz"
+        "${GATK_PATH} --java-options \"-XX:+UseSerialGC -Xmx${JAVA_HEAP}\" Mutect2 --intervals ${REGION} --arguments_file ${ARGS} --output ${OUTPUT}.${BLOCK_NUM}.vcf.gz"
     )
     for i, interval in enumerate(get_region(params['intervals'])):
         cmd = template.substitute(
@@ -188,6 +189,8 @@ def cmd_template(params):
         )
         if params['f1r2']:
             cmd += ' --f1r2-tar-gz {}.{}.tar.gz'.format(params['output_prefix'], i)
+        if params['bamout']:
+            cmd += ' --bam-output {}.{}.reassembly.bam'.format(params['output_prefix'], i)
         yield cmd
 
 def main():
