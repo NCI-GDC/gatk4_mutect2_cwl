@@ -23,7 +23,7 @@ inputs:
   input:
     type:
       type: array
-      items: File
+      items: ["null", File]
       inputBinding:
         prefix: --input
     secondaryFiles: [^.bai]
@@ -47,6 +47,7 @@ inputs:
       prefix: --bam-output
   f1r2_tar_gz:
     type: boolean?
+    default: true
     inputBinding:
       prefix: --f1r2-tar-gz
   # optional params
@@ -244,7 +245,7 @@ inputs:
     inputBinding:
       prefix: --normal-lod
   normal_sample:
-    type: string?
+    type: string[]?
     inputBinding:
       prefix: --normal-sample
   num_pruning_samples:
@@ -323,7 +324,7 @@ outputs:
     secondaryFiles: [^.bai]
 
   f1r2s:
-    type: File[]?
+    type: File[]
     outputBinding:
       glob: '*tar.gz'
 
