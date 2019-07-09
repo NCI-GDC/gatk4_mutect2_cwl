@@ -1,6 +1,6 @@
 {
     "has_normal": [],
-    "output_prefix": "0707_test_full",
+    "output_prefix": "0708_test_full",
     "java_heap": "30G",
     "chunk_java_heap": "8G",
     "nthreads": 4,
@@ -13,5 +13,6 @@
     "bam_output": true,
     "genotype_pon_sites": true,
     "germline_resource": {"class": "File", "path": "/mnt/SCRATCH/reference/gnomad.genomes.r2.1.1.sites.liftover_grch38.pass.no_decoy.af_only.vcf.gz"},
-    "panel_of_normals": {"class": "File", "path": "/mnt/SCRATCH/reference/gatk4.1.2.tcga.4136.pon.vcf.gz"}
+    "panel_of_normals": {"class": "File", "path": "/mnt/SCRATCH/reference/gatk4.1.2.tcga.4136.pon.vcf.gz"},
+    "call_on_all": true
 }

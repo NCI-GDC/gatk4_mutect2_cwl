@@ -163,6 +163,7 @@ inputs:
     type: string?
   tumor_lod_to_emit:
     type: float?
+  call_on_all: boolean
 
 outputs:
   gatk4.1.2_mutect2_filtered_vcf:
@@ -284,4 +285,5 @@ steps:
       reference_image: reference_image
       input_vcf: filter_mutect2/filtered_vcf
       bam_outs: mutect2_calling/mutect2_reassembly_bamouts
+      call_on_all: call_on_all
     out: [alignment_artifacts_filtered_vcf]

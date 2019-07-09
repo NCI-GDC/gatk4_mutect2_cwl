@@ -20,6 +20,7 @@ inputs:
   bam_outs:
     type: File[]
     secondaryFiles: [^.bai]
+  call_on_all: boolean
 
 outputs:
   alignment_artifacts_filtered_vcf:
@@ -59,5 +60,6 @@ steps:
       reassembly_bam: index_out_bam/sorted_bam_with_index
       reference_image: reference_image
       output_prefix: output_prefix
+      call_on_all: call_on_all
     out: [alignment_artifacts_filtered_vcf]
 

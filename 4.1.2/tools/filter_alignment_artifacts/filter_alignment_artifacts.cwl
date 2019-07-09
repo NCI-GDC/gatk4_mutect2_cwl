@@ -20,6 +20,12 @@ inputs:
     secondaryFiles: [^.bai]
   reference_image: File
   output_prefix: string
+  call_on_all:
+    type: boolean
+    inputBinding:
+      prefix: --dont-skip-filtered-variants
+      position: 99
+      shellQuote: false
 
 outputs:
   alignment_artifacts_filtered_vcf:
