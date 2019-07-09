@@ -1,3 +1,4 @@
+
 #!/usr/bin/env cwl-runner
 
 cwlVersion: v1.0
@@ -21,4 +22,4 @@ expression: |
       var input_file = null;
     }
     return {'input_file': input_file}
-    }
+  }

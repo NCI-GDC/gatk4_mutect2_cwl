@@ -60,7 +60,7 @@ steps:
     out: [pileups_table]
 
   extract_normal_pileups:
-    run: ../../../utils-cwl/extract_from_conditional_array.cwl
+    run: ../../utils-cwl/extract_from_conditional_array.cwl
     in:
       input_array: get_normal_pileups/pileups_table
     out: [input_file]

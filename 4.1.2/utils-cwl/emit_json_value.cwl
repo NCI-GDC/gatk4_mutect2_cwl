@@ -12,7 +12,6 @@ inputs:
     type: File
     inputBinding:
       loadContents: true
-      valueFrom: $(null)
 
   key:
     type: string

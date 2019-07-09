@@ -2,42 +2,67 @@
 
 cwlVersion: v1.0
 
-doc: |
-    GATK4.1.2 Mutect2 workflow
-
 class: Workflow
 
 requirements:
+  - class: InlineJavascriptRequirement
+  - class: StepInputExpressionRequirement
+  - class: MultipleInputFeatureRequirement
   - class: SubworkflowFeatureRequirement
+  - class: ScatterFeatureRequirement
 
 inputs:
+###CONDITIONAL_INPUTS###
   has_normal: int[]
-  output_prefix: string
-  java_heap: string
-  chunk_java_heap: string
+###BIOCLIENT_INPUTS###
+  bioclient_config: File
+  tumor_gdc_id: string
+  tumor_index_gdc_id: string
+  normal_gdc_id: string?
+  normal_index_gdc_id: string?
+  reference_gdc_id: string
+  reference_faidx_gdc_id: string
+  reference_dict_gdc_id: string
+  reference_image_gdc_id: string
+  germline_resource_gdc_id: string
+  germline_resource_index_gdc_id: string
+  common_biallelic_variants_gdc_id: string
+  common_biallelic_variants_index_gdc_id: string
+  panel_of_normal_gdc_id: string
+  panel_of_normal_index_gdc_id: string
+  upload_bucket: string
+###GENERAL_INPUTS###
+  project_id: string?
+  experimental_strategy: string?
+  job_uuid:
+    type: string
+    doc: Job id. Served as a prefix for most outputs.
+  java_heap:
+    type: string
+    default: '32G'
+    doc: Java option flags for all the java cmd. GDC default is 32G.
+  chunk_java_heap:
+    type: string
+    default: '3G'
+    doc: Java option flag for multithreading Mutect2 only. GDC default is 3G.
   nthreads: int
-  reference:
-    type: File
-    secondaryFiles: [.fai, ^.dict]
-  reference_image: File
-  common_variant_reference:
-    type: File
-    secondaryFiles: [.tbi]
-  intervals: File
-  tumor_bam:
-    type: File
-    secondaryFiles: [^.bai]
-  normal_bam:
-    type: File?
-    secondaryFiles: [^.bai]
   bam_output:
     type: boolean
     default: true
+    doc: If specified, assembled haplotypes wil be written to bam. Used for alignment artifacts filtration. GDC default is true.
   f1r2_tar_gz:
     type: boolean
     default: true
-  call_on_all: boolean
-  # optional params
+    doc: If specified, collect F1R2 counts and output files into tar.gz file. Used for Mutect2 filtration. GDC default is true.
+  call_on_all:
+    type: boolean
+    default: true
+    doc: If specified, alignment artifacts filtration will not skip filtered variants. GDC default is true.
+  usedecoy:
+    type: boolean
+    default: false
+    doc: If specified, it will include all the decoy sequences in the faidx. GDC default is false.
+###OPTIONAL_INPUTS###
   active_probability_threshold:
     type: float?
   adaptive_pruning_initial_error_rate:
@@ -88,9 +113,6 @@ inputs:
     type: boolean?
   genotype_pon_sites:
     type: boolean?
-  germline_resource:
-    type: File?
-    secondaryFiles: [.tbi]
   gvcf_lod_band:
     type: float?
   ignore_itr_artifacts:
@@ -141,9 +163,6 @@ inputs:
     type: int?
   pair_hmm_implementation:
     type: string?
-  panel_of_normals:
-    type: File?
-    secondaryFiles: [.tbi]
   pcr_indel_model:
     type: string?
   pcr_indel_qual:
@@ -168,38 +187,72 @@ inputs:
     type: float?
 
 outputs:
-  gatk4.1.2_mutect2_filtered_vcf:
-    type: File
-    outputSource: filter_alignment_artifacts/alignment_artifacts_filtered_vcf
+  gatk4_mutect2_vcf_uuid:
+    type: string
+    outputSource: uuid_vcf/output
+  gatk4_mutect2_vcf_index_uuid:
+    type: string
+    outputSource: uuid_vcf_index/output
 
 steps:
-  calculate_contamination:
-    run: ./subworkflows/calculate_contamination_workflow.cwl
+  prepare_file_prefix:
+    run: ../utils-cwl/make_prefix.cwl
     in:
       has_normal: has_normal
-      output_prefix: output_prefix
-      java_heap: java_heap
-      reference: reference
-      common_variant_reference: common_variant_reference
-      intervals: intervals
-      tumor_bam: tumor_bam
-      normal_bam: normal_bam
-    out: [contamination_table, tumor_segments_table]
+      project_id: project_id
+      job_id: job_uuid
+      experimental_strategy: experimental_strategy
+    out: [output_prefix]
 
-  mutect2_calling:
-    run: ./subworkflows/mutect2_calling.cwl
+  preparation:
+    run: ../utils-cwl/subworkflow/preparation_workflow.cwl
+    in:
+      bioclient_config: bioclient_config
+      has_normal: has_normal
+      tumor_gdc_id: tumor_gdc_id
+      tumor_index_gdc_id: tumor_index_gdc_id
+      normal_gdc_id: normal_gdc_id
+      normal_index_gdc_id: normal_index_gdc_id
+      reference_fa_gdc_id: reference_gdc_id
+      reference_fai_gdc_id: reference_faidx_gdc_id
+      reference_dict_gdc_id: reference_dict_gdc_id
+      reference_image_gdc_id: reference_image_gdc_id
+      germline_resource_gdc_id: germline_resource_gdc_id
+      germline_resource_index_gdc_id: germline_resource_index_gdc_id
+      common_biallelic_variants_gdc_id: common_biallelic_variants_gdc_id
+      common_biallelic_variants_index_gdc_id: common_biallelic_variants_index_gdc_id
+      panel_of_normal_gdc_id: panel_of_normal_gdc_id
+      panel_of_normal_index_gdc_id: panel_of_normal_index_gdc_id
+    out: [tumor_with_index, normal_with_index, reference_with_index, reference_image, germline_resource_with_index, common_biallelic_variants_with_index, panel_of_normal_with_index]
+
+  faidx_to_bed:
+    run: ../utils-cwl/faidx_to_bed.cwl
+    in:
+      ref_fai:
+        source: preparation/reference_with_index
+        valueFrom: $(self.secondaryFiles[0])
+      usedecoy: usedecoy
+    out: [output_bed]
+
+  gatk4_mutect2:
+    run: ./gatk4.1.2_mutect2_workflow.cwl
     in:
       has_normal: has_normal
+      output_prefix: prepare_file_prefix/output_prefix
       java_heap: java_heap
-      output_prefix: output_prefix
-      nthreads: nthreads
       chunk_java_heap: chunk_java_heap
-      tumor_bam: tumor_bam
-      normal_bam: normal_bam
-      reference: reference
-      intervals: intervals
+      nthreads: nthreads
+      reference: preparation/reference_with_index
+      reference_image: preparation/reference_image
+      common_variant_reference: preparation/common_biallelic_variants_with_index
+      intervals: faidx_to_bed/output_bed
+      tumor_bam: preparation/tumor_with_index
+      normal_bam: preparation/normal_with_index
       bam_output: bam_output
       f1r2_tar_gz: f1r2_tar_gz
+      call_on_all: call_on_all
+      germline_resource: preparation/germline_resource_with_index
+      panel_of_normals: preparation/panel_of_normal_with_index
       active_probability_threshold: active_probability_threshold
       adaptive_pruning_initial_error_rate: adaptive_pruning_initial_error_rate
       af_of_alleles_not_in_resource: af_of_alleles_not_in_resource
@@ -225,7 +278,6 @@ steps:
       genotype_filtered_alleles: genotype_filtered_alleles
       genotype_germline_sites: genotype_germline_sites
       genotype_pon_sites: genotype_pon_sites
-      germline_resource: germline_resource
       gvcf_lod_band: gvcf_lod_band
       ignore_itr_artifacts: ignore_itr_artifacts
       initial_tumor_lod: initial_tumor_lod
@@ -251,7 +303,6 @@ steps:
       num_pruning_samples: num_pruning_samples
       pair_hmm_gap_continuation_penalty: pair_hmm_gap_continuation_penalty
       pair_hmm_implementation: pair_hmm_implementation
-      panel_of_normals: panel_of_normals
       pcr_indel_model: pcr_indel_model
       pcr_indel_qual: pcr_indel_qual
       pcr_snv_qual: pcr_snv_qual
@@ -263,29 +314,44 @@ steps:
       sites_only_vcf_output: sites_only_vcf_output
       smith_waterman: smith_waterman
       tumor_lod_to_emit: tumor_lod_to_emit
-    out: [mutect2_vcf, mutect2_stats, mutect2_artifacts_priors, mutect2_reassembly_bamouts]
+    out: [gatk4.1.2_mutect2_filtered_vcf]
 
-  filter_mutect2:
-    run: ../tools/filter_mutect2/filter_mutect_calls.cwl
+  upload_vcf:
+    run: ../utils-cwl/bio_client/bio_client_upload_pull_uuid.cwl
     in:
-      java_heap: java_heap
-      unfiltered_vcf: mutect2_calling/mutect2_vcf
-      reference: reference
-      output_prefix: output_prefix
-      contamination_table: calculate_contamination/contamination_table
-      tumor_segments_table: calculate_contamination/tumor_segments_table
-      artifacts_priors: mutect2_calling/mutect2_artifacts_priors
-      mutect2_stats: mutect2_calling/mutect2_stats
-    out: [filtered_vcf]
+      config_file: bioclient_config
+      upload_bucket: upload_bucket
+      upload_key:
+        source: [job_uuid, gatk4_mutect2/gatk4.1.2_mutect2_filtered_vcf]
+        valueFrom: $(self[0])/$(self[1].basename)
+      local_file: gatk4_mutect2/gatk4.1.2_mutect2_filtered_vcf
+    out: [output]
 
-  filter_alignment_artifacts:
-    run: ./subworkflows/filter_alignment_artifacts.cwl
+  upload_vcf_index:
+    run: ../utils-cwl/bio_client/bio_client_upload_pull_uuid.cwl
     in:
-      java_heap: java_heap
-      output_prefix: output_prefix
-      reference: reference
-      reference_image: reference_image
-      input_vcf: filter_mutect2/filtered_vcf
-      bam_outs: mutect2_calling/mutect2_reassembly_bamouts
-      call_on_all: call_on_all
-    out: [alignment_artifacts_filtered_vcf]
+      config_file: bioclient_config
+      upload_bucket: upload_bucket
+      upload_key:
+        source: [job_uuid, gatk4_mutect2/gatk4.1.2_mutect2_filtered_vcf]
+        valueFrom: $(self[0])/$(self[1].secondaryFiles[0].basename)
+      local_file:
+        source: gatk4_mutect2/gatk4.1.2_mutect2_filtered_vcf
+        valueFrom: $(self.secondaryFiles[0])
+    out: [output]
+
+  uuid_vcf:
+    run: ../utils-cwl/emit_json_value.cwl
+    in:
+      input: upload_vcf/output
+      key:
+       valueFrom: 'did'
+    out: [output]
+
+  uuid_vcf_index:
+    run: ../utils-cwl/emit_json_value.cwl
+    in:
+      input: upload_vcf_index/output
+      key:
+        valueFrom: 'did'
+    out: [output]

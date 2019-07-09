@@ -42,11 +42,12 @@ inputs:
       prefix: --intervals
   # wrapper params
   bam_output:
-    type: boolean?
+    type: boolean
+    default: true
     inputBinding:
       prefix: --bam-output
   f1r2_tar_gz:
-    type: boolean?
+    type: boolean
     default: true
     inputBinding:
       prefix: --f1r2-tar-gz

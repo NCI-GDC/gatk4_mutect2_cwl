@@ -30,9 +30,9 @@ inputs:
     secondaryFiles: [.fai, ^.dict]
   intervals: File
   # wrapper params
-  bam_output: boolean?
+  bam_output: boolean
   f1r2_tar_gz:
-    type: boolean?
+    type: boolean
     default: true
   # optional params
   active_probability_threshold:
