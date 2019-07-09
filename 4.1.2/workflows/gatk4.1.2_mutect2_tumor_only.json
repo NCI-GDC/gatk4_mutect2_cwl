@@ -1,0 +1,18 @@
+{
+    "has_normal": [],
+    "output_prefix": "0708_test_full",
+    "java_heap": "30G",
+    "chunk_java_heap": "8G",
+    "nthreads": 4,
+    "reference": {"class": "File", "path": "/mnt/SCRATCH/reference/GRCh38.d1.vd1.fa"},
+    "reference_image": {"class": "File", "path": "/mnt/SCRATCH/reference/GRCh38.d1.vd1.fa.img"},
+    "common_variant_reference": {"class": "File", "path": "/mnt/SCRATCH/reference/gnomad.genomes.r2.1.1.sites.liftover_grch38.pass.no_decoy.af_only.biallelicvcf.gz"},
+    "intervals": {"class": "File", "path": "/mnt/SCRATCH/reference/intervals.bed"},
+    "tumor_bam": {"class": "File", "path": "/mnt/SCRATCH/playground/C500.TCGA-HQ-A5ND-01A-11D-A26M-08.4_gdc_realn.bam"},
+    "f1r2_tar_gz": true,
+    "bam_output": true,
+    "genotype_pon_sites": true,
+    "germline_resource": {"class": "File", "path": "/mnt/SCRATCH/reference/gnomad.genomes.r2.1.1.sites.liftover_grch38.pass.no_decoy.af_only.vcf.gz"},
+    "panel_of_normals": {"class": "File", "path": "/mnt/SCRATCH/reference/gatk4.1.2.tcga.4136.pon.vcf.gz"},
+    "call_on_all": true
+}

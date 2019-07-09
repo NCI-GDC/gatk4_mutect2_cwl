@@ -6,12 +6,16 @@ requirements:
   - class: InlineJavascriptRequirement
   - class: StepInputExpressionRequirement
   - class: MultipleInputFeatureRequirement
+  - class: ScatterFeatureRequirement
 
 class: Workflow
 
 inputs:
+  has_normal: int[]
   tumor: File
   tumor_index: File
+  normal: File?
+  normal_index: File?
   reference: File
   reference_fai: File
   reference_dict: File
@@ -26,6 +30,9 @@ outputs:
   tumor_with_index:
     type: File
     outputSource: make_tumor_bam/output
+  normal_with_index:
+    type: File?
+    outputSource: extract_normal/input_file
   reference_with_index:
     type: File
     outputSource: make_reference/output
@@ -62,6 +69,37 @@ steps:
         source: standardize_tumor_bai/out_file
         valueFrom: $([self])
     out: [ output ]
+
+  standardize_normal_bai:
+    run: ../rename_file.cwl
+    scatter: has_normal
+    in:
+      has_normal: has_normal
+      input_file: normal_index
+      output_filename:
+        source: normal_index
+        valueFrom: |
+          ${
+             return self.basename.lastIndexOf('.bam') !== -1 ?
+                    self.basename.substr(0, self.basename.lastIndexOf('.bam')) + '.bai' :
+                    self.basename
+           }
+    out: [ out_file ]
+
+  make_normal_bam:
+    run: ../make_secondary.cwl
+    scatter: has_normal
+    in:
+      has_normal: has_normal
+      parent_file: normal
+      children: standardize_normal_bai/out_file
+    out: [ output ]
+
+  extract_normal:
+    run: ../extract_from_conditional_array.cwl
+    in:
+      input_array: make_normal_bam/output
+    out: [input_file]
 
   make_reference:
     run: ../make_secondary.cwl
