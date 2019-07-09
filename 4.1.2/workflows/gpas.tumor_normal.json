@@ -1,0 +1,33 @@
+{
+    "backend_opts": {
+      "args": [
+        "--workdir=/mnt/SCRATCH/",
+        "--ntasks=1",
+        "--cpus-per-task=30",
+        "--nodes=1",
+        "--gres=SCRATCH:10",
+        "--mem=32000"
+      ]
+    },
+    "workflow_uuid": "f87bd177-9b40-47fe-a5cb-4fd73f442d32",
+    "inputs": {
+      "bioclient_config": {"class": "File", "path": "/home/ubuntu/bioclient.json"},
+      "has_normal": [1],
+      "tumor_gdc_id": "c15b700d-7b43-425b-bbca-b3b6c8516240",
+      "tumor_index_gdc_id": "f5113424-8d53-4e33-9fc5-19502852887d",
+      "normal_gdc_id": "26a4fc5f-190c-44a4-96c4-eb0ed031788f",
+      "normal_index_gdc_id": "dd152b06-5719-485f-8bcf-3923997e53e9",
+      "reference_gdc_id": "ed96790c-3eb5-4aa2-8f46-702d503e64e4",
+      "reference_faidx_gdc_id": "10283433-bcec-46bc-bfd5-5215428853ea",
+      "reference_dict_gdc_id": "cf9768de-12ec-4afb-9af2-1b6ba3e07c0d",
+      "reference_image_gdc_id": "46990d69-98d7-469b-bf43-79d63c7c0858",
+      "germline_resource_gdc_id": "925c7a92-4936-4216-a787-38653e9f1520",
+      "germline_resource_index_gdc_id": "99d9ae2e-e33d-469f-b0c8-5eed0952f630",
+      "common_biallelic_variants_gdc_id": "d456f321-4928-4744-a01a-796f2b5dc767",
+      "common_biallelic_variants_index_gdc_id": "b11cf542-5087-4f30-86f1-0a71bf9cc8e5",
+      "panel_of_normal_gdc_id": "b6492cee-ef84-4fc7-b2eb-e76308e79d0b",
+      "panel_of_normal_index_gdc_id": "0e1f4255-04c8-442a-9fdf-a8b512ed04cc",
+      "nthreads": 24,
+      "upload_bucket": "s3://ceph.service.consul/bio-automation-test"
+    }
+  }
