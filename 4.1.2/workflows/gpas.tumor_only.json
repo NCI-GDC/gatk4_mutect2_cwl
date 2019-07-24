@@ -9,7 +9,7 @@
         "--mem=32000"
       ]
     },
-    "workflow_uuid": "f87bd177-9b40-47fe-a5cb-4fd73f442d32",
+    "workflow_uuid": "7f463eac-d7e2-4959-9af2-daa5eb9ce0a2",
     "inputs": {
       "bioclient_config": {"class": "File", "path": "/home/ubuntu/bioclient.json"},
       "has_normal": [],
