@@ -26,6 +26,7 @@
       "panel_of_normal_gdc_id": "b6492cee-ef84-4fc7-b2eb-e76308e79d0b",
       "panel_of_normal_index_gdc_id": "0e1f4255-04c8-442a-9fdf-a8b512ed04cc",
       "nthreads": 24,
-      "upload_bucket": "s3://ceph.service.consul/bio-automation-test"
+      "upload_bucket": "s3://ceph.service.consul/bio-automation-test",
+      "genotype_pon_sites": true
     }
   }

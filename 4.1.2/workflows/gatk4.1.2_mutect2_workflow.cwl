@@ -170,7 +170,7 @@ inputs:
 outputs:
   gatk4.1.2_mutect2_filtered_vcf:
     type: File
-    outputSource: filter_alignment_artifacts/alignment_artifacts_filtered_vcf
+    outputSource: modify_vcf_sample/gdc_gatk4_mutect2_vcf
 
 steps:
   calculate_contamination:
@@ -289,3 +289,12 @@ steps:
       bam_outs: mutect2_calling/mutect2_reassembly_bamouts
       call_on_all: call_on_all
     out: [alignment_artifacts_filtered_vcf]
+
+  modify_vcf_sample:
+    run: ../tools/modify_vcf_sample.cwl
+    in:
+      tumor_bam: tumor_bam
+      normal_bam: normal_bam
+      vcf: filter_alignment_artifacts/alignment_artifacts_filtered_vcf
+      output_prefix: output_prefix
+    out: [gdc_gatk4_mutect2_vcf]

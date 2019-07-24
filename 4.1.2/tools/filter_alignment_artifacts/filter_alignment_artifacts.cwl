@@ -31,7 +31,7 @@ outputs:
   alignment_artifacts_filtered_vcf:
     type: File
     outputBinding:
-      glob: $(inputs.output_prefix + '.gatk4_mutect2.raw_somatic_mutation.vcf.gz')
+      glob: $(inputs.output_prefix + '.gatk4_mutect2.raw_filtered.vcf.gz')
     secondaryFiles: [.tbi]
 
 baseCommand: []
@@ -40,4 +40,4 @@ arguments:
       shellQuote: false
       valueFrom: >-
         /opt/gatk-4.1.2.0/gatk --java-options "-XX:+UseSerialGC -Xmx$(inputs.java_heap)" FilterAlignmentArtifacts \
-        -V $(inputs.input_vcf.path) -I $(inputs.reassembly_bam.path) --bwa-mem-index-image $(inputs.reference_image.path) -O $(inputs.output_prefix).gatk4_mutect2.raw_somatic_mutation.vcf.gz
+        -V $(inputs.input_vcf.path) -I $(inputs.reassembly_bam.path) --bwa-mem-index-image $(inputs.reference_image.path) -O $(inputs.output_prefix).gatk4_mutect2.raw_filtered.vcf.gz
