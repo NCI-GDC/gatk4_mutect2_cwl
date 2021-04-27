@@ -39,5 +39,5 @@ arguments:
     - position: 0
       shellQuote: false
       valueFrom: >-
-        /opt/gatk-4.1.2.0/gatk --java-options "-XX:+UseSerialGC -Xmx$(inputs.java_heap)" FilterAlignmentArtifacts \
+        /opt/gatk-4.1.3.0/gatk --java-options "-XX:+UseSerialGC -Xmx$(inputs.java_heap)" FilterAlignmentArtifacts \
         -V $(inputs.input_vcf.path) -I $(inputs.reassembly_bam.path) --bwa-mem-index-image $(inputs.reference_image.path) -O $(inputs.output_prefix).gatk4_mutect2.raw_filtered.vcf.gz
