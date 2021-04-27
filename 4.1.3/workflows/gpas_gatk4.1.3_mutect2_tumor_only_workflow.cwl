@@ -235,7 +235,7 @@ steps:
     out: [output_bed]
 
   gatk4_mutect2:
-    run: ./gatk4.1.2_mutect2_workflow.cwl
+    run: ./gatk4.1.3_mutect2_workflow.cwl
     in:
       has_normal: has_normal
       output_prefix: prepare_file_prefix/output_prefix
@@ -314,7 +314,7 @@ steps:
       sites_only_vcf_output: sites_only_vcf_output
       smith_waterman: smith_waterman
       tumor_lod_to_emit: tumor_lod_to_emit
-    out: [gatk4.1.2_mutect2_filtered_vcf]
+    out: [gatk4.1.3_mutect2_filtered_vcf]
 
   upload_vcf:
     run: ../utils-cwl/bio_client/bio_client_upload_pull_uuid.cwl
@@ -322,9 +322,9 @@ steps:
       config_file: bioclient_config
       upload_bucket: upload_bucket
       upload_key:
-        source: [job_uuid, gatk4_mutect2/gatk4.1.2_mutect2_filtered_vcf]
+        source: [job_uuid, gatk4_mutect2/gatk4.1.3_mutect2_filtered_vcf]
         valueFrom: $(self[0])/$(self[1].basename)
-      local_file: gatk4_mutect2/gatk4.1.2_mutect2_filtered_vcf
+      local_file: gatk4_mutect2/gatk4.1.3_mutect2_filtered_vcf
     out: [output]
 
   upload_vcf_index:
@@ -333,10 +333,10 @@ steps:
       config_file: bioclient_config
       upload_bucket: upload_bucket
       upload_key:
-        source: [job_uuid, gatk4_mutect2/gatk4.1.2_mutect2_filtered_vcf]
+        source: [job_uuid, gatk4_mutect2/gatk4.1.3_mutect2_filtered_vcf]
         valueFrom: $(self[0])/$(self[1].secondaryFiles[0].basename)
       local_file:
-        source: gatk4_mutect2/gatk4.1.2_mutect2_filtered_vcf
+        source: gatk4_mutect2/gatk4.1.3_mutect2_filtered_vcf
         valueFrom: $(self.secondaryFiles[0])
     out: [output]
 
