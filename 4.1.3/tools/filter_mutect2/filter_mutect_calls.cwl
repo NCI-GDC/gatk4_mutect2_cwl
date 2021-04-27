@@ -36,7 +36,7 @@ arguments:
     - position: 0
       shellQuote: false
       valueFrom: >-
-        /opt/gatk-4.1.2.0/gatk --java-options "-XX:+UseSerialGC -Xmx$(inputs.java_heap)" FilterMutectCalls \
+        /opt/gatk-4.1.3.0/gatk --java-options "-XX:+UseSerialGC -Xmx$(inputs.java_heap)" FilterMutectCalls \
         -V $(inputs.unfiltered_vcf.path) -R $(inputs.reference.path) -O $(inputs.output_prefix).gatk4_mutect2.filtered.vcf.gz \
         --contamination-table $(inputs.contamination_table.path) --tumor-segmentation $(inputs.tumor_segments_table.path) --ob-priors $(inputs.artifacts_priors.path) \
         -stats $(inputs.mutect2_stats.path) --filtering-stats filtering.stats

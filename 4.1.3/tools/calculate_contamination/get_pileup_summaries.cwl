@@ -34,5 +34,5 @@ arguments:
     - position: 0
       shellQuote: false
       valueFrom: >-
-        /opt/gatk-4.1.2.0/gatk --java-options "-XX:+UseSerialGC -Xmx$(inputs.java_heap)" GetPileupSummaries -R $(inputs.reference.path) \
+        /opt/gatk-4.1.3.0/gatk --java-options "-XX:+UseSerialGC -Xmx$(inputs.java_heap)" GetPileupSummaries -R $(inputs.reference.path) \
         -I $(inputs.bam_file.path) -V $(inputs.common_variant_reference.path) -L $(inputs.intervals.path) -O $(inputs.bam_file.nameroot).pileups.table

@@ -33,5 +33,5 @@ arguments:
     - position: 0
       shellQuote: false
       valueFrom: >-
-        /opt/gatk-4.1.2.0/gatk --java-options "-XX:+UseSerialGC -Xmx$(inputs.java_heap)" LearnReadOrientationModel \
+        /opt/gatk-4.1.3.0/gatk --java-options "-XX:+UseSerialGC -Xmx$(inputs.java_heap)" LearnReadOrientationModel \
         -O $(inputs.output_prefix).artifacts_priors.tar.gz
