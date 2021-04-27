@@ -8,7 +8,7 @@ requirements:
   - class: InlineJavascriptRequirement
   - class: ShellCommandRequirement
   - class: DockerRequirement
-    dockerPull: quay.io/ncigdc/gatk4_multi_mutect2:4.1.2
+    dockerPull: quay.io/ncigdc/gatk4_multi_mutect2:4.1.3
 
 inputs:
   java_heap: string
