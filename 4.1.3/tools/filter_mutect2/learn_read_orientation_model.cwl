@@ -8,30 +8,30 @@ requirements:
   - class: InlineJavascriptRequirement
   - class: ShellCommandRequirement
   - class: DockerRequirement
-    dockerPull: quay.io/ncigdc/gatk4_multi_mutect2:4.1.2
+    dockerPull: quay.io/ncigdc/gatk4_multi_mutect2:4.1.3
 
 inputs:
   java_heap: string
   output_prefix: string
-  stats:
+  f1r2s:
     type:
       type: array
       items: File
       inputBinding:
-        prefix: -stats
+        prefix: -I
     inputBinding:
       position: 99
 
 outputs:
-  mutect2_stats:
+  artifacts_priors:
     type: File
     outputBinding:
-      glob: $(inputs.output_prefix + '.mutect2.merged.stats')
+      glob: $(inputs.output_prefix + '.artifacts_priors.tar.gz')
 
 baseCommand: []
 arguments:
     - position: 0
       shellQuote: false
       valueFrom: >-
-        /opt/gatk-4.1.2.0/gatk --java-options "-XX:+UseSerialGC -Xmx$(inputs.java_heap)" MergeMutectStats \
-        -O $(inputs.output_prefix).mutect2.merged.stats
+        /opt/gatk-4.1.3.0/gatk --java-options "-XX:+UseSerialGC -Xmx$(inputs.java_heap)" LearnReadOrientationModel \
+        -O $(inputs.output_prefix).artifacts_priors.tar.gz
