@@ -8,7 +8,7 @@ requirements:
   - class: InlineJavascriptRequirement
   - class: ShellCommandRequirement
   - class: DockerRequirement
-    dockerPull: quay.io/ncigdc/gatk4_multi_mutect2:4.1.3
+    dockerPull: quay.io/ncigdc/gatk4_multi_mutect2:4.2.4.1
 
 inputs:
   java_heap: string
@@ -34,5 +34,5 @@ arguments:
     - position: 0
       shellQuote: false
       valueFrom: >-
-        /opt/gatk-4.1.3.0/gatk --java-options "-XX:+UseSerialGC -Xmx$(inputs.java_heap)" GetPileupSummaries -R $(inputs.reference.path) \
+        /usr/local/bin/gatk --java-options "-XX:+UseSerialGC -Xmx$(inputs.java_heap)" GetPileupSummaries -R $(inputs.reference.path) \
         -I $(inputs.bam_file.path) -V $(inputs.common_variant_reference.path) -L $(inputs.intervals.path) -O $(inputs.bam_file.nameroot).pileups.table

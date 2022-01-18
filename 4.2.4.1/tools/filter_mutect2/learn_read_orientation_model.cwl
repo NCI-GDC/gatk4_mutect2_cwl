@@ -8,7 +8,7 @@ requirements:
   - class: InlineJavascriptRequirement
   - class: ShellCommandRequirement
   - class: DockerRequirement
-    dockerPull: quay.io/ncigdc/gatk4_multi_mutect2:4.1.3
+    dockerPull: quay.io/ncigdc/gatk4_multi_mutect2:4.2.4.1
 
 inputs:
   java_heap: string
@@ -33,5 +33,5 @@ arguments:
     - position: 0
       shellQuote: false
       valueFrom: >-
-        /opt/gatk-4.1.3.0/gatk --java-options "-XX:+UseSerialGC -Xmx$(inputs.java_heap)" LearnReadOrientationModel \
+        /usr/local/bin/gatk --java-options "-XX:+UseSerialGC -Xmx$(inputs.java_heap)" LearnReadOrientationModel \
         -O $(inputs.output_prefix).artifacts_priors.tar.gz

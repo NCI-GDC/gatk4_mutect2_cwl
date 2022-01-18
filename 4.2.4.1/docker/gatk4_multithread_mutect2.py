@@ -9,7 +9,7 @@ def get_args():
     '''
     Loads the parser
     '''
-    parser = argparse.ArgumentParser(prog='GATK4.1.3.0 Mutect2 multithreading wrapper.', add_help=True)
+    parser = argparse.ArgumentParser(prog='GATK4.2.4.1 Mutect2 multithreading wrapper.', add_help=True)
     required = parser.add_argument_group('Required input parameter')
     required.add_argument('-I', \
                           '--input', \
@@ -106,7 +106,7 @@ def key_to_cmd(string):
 
 def prepare_cmd_args(args):
     '''
-    prepare GATK4.1.3 Mutect2 cmd based on the python parameters.
+    prepare GATK4.2.4.1 Mutect2 cmd based on the python parameters.
     args: parser.parse_args()
     returns: An argument file for the gatk command
     '''
@@ -135,7 +135,7 @@ def prepare_cmd_args(args):
         'nthreads': args.nthreads,
         'java_heap': args.java_heap,
         'arg_file': os.path.abspath(arg_file),
-        'gatk4': '/opt/gatk-4.1.3.0/gatk'
+        'gatk4': '/usr/local/bin/gatk.jar'
     }
 
 def do_pool_commands(cmd, lock=Lock(), shell_var=True):
@@ -199,7 +199,7 @@ def main():
     cmds = list(cmd_template(params))
     ec = multi_commands(cmds, params['nthreads'])
     if any(x != 0 for x in ec):
-        print('Failed GATK4.1.3 multithreading Mutect2 calling.')
+        print('Failed GATK4.2.4.1 multithreading Mutect2 calling.')
     else:
         print('Completed.')
 

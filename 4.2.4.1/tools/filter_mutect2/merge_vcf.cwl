@@ -8,15 +8,12 @@ requirements:
   - class: InlineJavascriptRequirement
   - class: ShellCommandRequirement
   - class: DockerRequirement
-    dockerPull: quay.io/ncigdc/gatk4_multi_mutect2:4.1.3
+    dockerPull: quay.io/ncigdc/gatk4_multi_mutect2:4.2.4.1
 
 inputs:
   java_heap: string
   output_prefix: string
-  reference:
-    type: File
-    secondaryFiles: [.fai, ^.dict]
-  bam_outs:
+  vcfs:
     type:
       type: array
       items: File
@@ -26,15 +23,16 @@ inputs:
       position: 99
 
 outputs:
-  merged_out_bam:
+  mutect2_unfiltered_vcf:
     type: File
     outputBinding:
-      glob: $(inputs.output_prefix + '.unsorted.out.bam')
+      glob: $(inputs.output_prefix + '.mutect2.vcf.gz')
+    secondaryFiles: [.tbi]
 
 baseCommand: []
 arguments:
     - position: 0
       shellQuote: false
       valueFrom: >-
-        /opt/gatk-4.1.3.0/gatk --java-options "-XX:+UseSerialGC -Xmx$(inputs.java_heap)" GatherBamFiles \
-        -O $(inputs.output_prefix).unsorted.out.bam -R $(inputs.reference.path)
+        /usr/local/bin/gatk --java-options "-XX:+UseSerialGC -Xmx$(inputs.java_heap)" MergeVcfs \
+        -O $(inputs.output_prefix).mutect2.vcf.gz

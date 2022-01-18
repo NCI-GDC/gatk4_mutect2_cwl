@@ -8,31 +8,30 @@ requirements:
   - class: InlineJavascriptRequirement
   - class: ShellCommandRequirement
   - class: DockerRequirement
-    dockerPull: quay.io/ncigdc/gatk4_multi_mutect2:4.1.3
+    dockerPull: quay.io/ncigdc/gatk4_multi_mutect2:4.2.4.1
 
 inputs:
   java_heap: string
   output_prefix: string
-  vcfs:
+  stats:
     type:
       type: array
       items: File
       inputBinding:
-        prefix: -I
+        prefix: -stats
     inputBinding:
       position: 99
 
 outputs:
-  mutect2_unfiltered_vcf:
+  mutect2_stats:
     type: File
     outputBinding:
-      glob: $(inputs.output_prefix + '.mutect2.vcf.gz')
-    secondaryFiles: [.tbi]
+      glob: $(inputs.output_prefix + '.mutect2.merged.stats')
 
 baseCommand: []
 arguments:
     - position: 0
       shellQuote: false
       valueFrom: >-
-        /opt/gatk-4.1.3.0/gatk --java-options "-XX:+UseSerialGC -Xmx$(inputs.java_heap)" MergeVcfs \
-        -O $(inputs.output_prefix).mutect2.vcf.gz
+        /usr/local/bin/gatk --java-options "-XX:+UseSerialGC -Xmx$(inputs.java_heap)" MergeMutectStats \
+        -O $(inputs.output_prefix).mutect2.merged.stats
