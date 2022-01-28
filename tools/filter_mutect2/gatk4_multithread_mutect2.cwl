@@ -7,7 +7,7 @@ class: CommandLineTool
 requirements:
   - class: InlineJavascriptRequirement
   - class: DockerRequirement
-    dockerPull: quay.io/ncigdc/gatk4_multi_mutect2:4.2.4.1
+    dockerPull: quay.io/ncigdc/gatk4-mutect2-tool:0.1.0-20-g6b2c31c
 
 inputs:
   # wrapper params
@@ -334,4 +334,4 @@ outputs:
     outputBinding:
       glob: '*stats'
 
-baseCommand: ['python', '/opt/gatk4_multithread_mutect2.py']
+baseCommand: ['gatk4_mutect2_tool']

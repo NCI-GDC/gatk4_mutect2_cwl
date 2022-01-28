@@ -38,7 +38,7 @@ outputs:
 
 steps:
   get_tumor_pileups:
-    run: ../../tools/calculate_contamination/get_pileup_summaries.cwl
+    run: ../tools/calculate_contamination/get_pileup_summaries.cwl
     in:
       java_heap: java_heap
       reference: reference
@@ -48,7 +48,7 @@ steps:
     out: [pileups_table]
 
   get_normal_pileups:
-    run: ../../tools/calculate_contamination/get_pileup_summaries.cwl
+    run: ../tools/calculate_contamination/get_pileup_summaries.cwl
     scatter: has_normal
     in:
       has_normal: has_normal
@@ -60,13 +60,13 @@ steps:
     out: [pileups_table]
 
   extract_normal_pileups:
-    run: ../../utils-cwl/extract_from_conditional_array.cwl
+    run: ../utils-cwl/extract_from_conditional_array.cwl
     in:
       input_array: get_normal_pileups/pileups_table
     out: [input_file]
 
   calculate_contamination:
-    run: ../../tools/calculate_contamination/calculate_contamination.cwl
+    run: ../tools/calculate_contamination/calculate_contamination.cwl
     in:
       java_heap: java_heap
       tumor_pileups: get_tumor_pileups/pileups_table

@@ -187,10 +187,10 @@ inputs:
     type: float?
 
 outputs:
-  gatk4_mutect2_vcf_uuid:
+  tumor_only_vcf_uuid:
     type: string
     outputSource: uuid_vcf/output
-  gatk4_mutect2_vcf_index_uuid:
+  tumor_only_vcf_index_uuid:
     type: string
     outputSource: uuid_vcf_index/output
 
@@ -235,7 +235,7 @@ steps:
     out: [output_bed]
 
   gatk4_mutect2:
-    run: ./gatk4.2.4.1_mutect2_workflow.cwl
+    run: ../subworkflows/gatk4.2.4.1_mutect2_workflow.cwl
     in:
       has_normal: has_normal
       output_prefix: prepare_file_prefix/output_prefix

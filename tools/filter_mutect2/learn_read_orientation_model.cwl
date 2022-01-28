@@ -8,12 +8,12 @@ requirements:
   - class: InlineJavascriptRequirement
   - class: ShellCommandRequirement
   - class: DockerRequirement
-    dockerPull: quay.io/ncigdc/gatk4_multi_mutect2:4.2.4.1
+    dockerPull: quay.io/ncigdc/gatk4-mutect2-tool:0.1.0-20-g6b2c31c
 
 inputs:
   java_heap: string
   output_prefix: string
-  vcfs:
+  f1r2s:
     type:
       type: array
       items: File
@@ -23,16 +23,15 @@ inputs:
       position: 99
 
 outputs:
-  mutect2_unfiltered_vcf:
+  artifacts_priors:
     type: File
     outputBinding:
-      glob: $(inputs.output_prefix + '.mutect2.vcf.gz')
-    secondaryFiles: [.tbi]
+      glob: $(inputs.output_prefix + '.artifacts_priors.tar.gz')
 
 baseCommand: []
 arguments:
     - position: 0
       shellQuote: false
       valueFrom: >-
-        /usr/local/bin/gatk --java-options "-XX:+UseSerialGC -Xmx$(inputs.java_heap)" MergeVcfs \
-        -O $(inputs.output_prefix).mutect2.vcf.gz
+        /usr/local/bin/gatk --java-options "-XX:+UseSerialGC -Xmx$(inputs.java_heap)" LearnReadOrientationModel \
+        -O $(inputs.output_prefix).artifacts_priors.tar.gz

@@ -174,7 +174,7 @@ outputs:
 
 steps:
   calculate_contamination:
-    run: ./subworkflows/calculate_contamination_workflow.cwl
+    run: calculate_contamination_workflow.cwl
     in:
       has_normal: has_normal
       output_prefix: output_prefix
@@ -187,7 +187,7 @@ steps:
     out: [contamination_table, tumor_segments_table]
 
   mutect2_calling:
-    run: ./subworkflows/mutect2_calling.cwl
+    run: mutect2_calling.cwl
     in:
       has_normal: has_normal
       java_heap: java_heap
@@ -279,7 +279,7 @@ steps:
     out: [filtered_vcf]
 
   filter_alignment_artifacts:
-    run: ./subworkflows/filter_alignment_artifacts.cwl
+    run: filter_alignment_artifacts.cwl
     in:
       java_heap: java_heap
       output_prefix: output_prefix

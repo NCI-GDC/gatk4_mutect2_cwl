@@ -29,7 +29,7 @@ outputs:
 
 steps:
   gather_reassembly_bamfiles:
-    run: ../../tools/filter_alignment_artifacts/gather_bamfiles.cwl
+    run: ../tools/filter_alignment_artifacts/gather_bamfiles.cwl
     in:
       java_heap: java_heap
       output_prefix: output_prefix
@@ -38,7 +38,7 @@ steps:
     out: [merged_out_bam]
 
   sort_out_bam:
-    run: ../../tools/filter_alignment_artifacts/sort_sam.cwl
+    run: ../tools/filter_alignment_artifacts/sort_sam.cwl
     in:
       java_heap: java_heap
       unsorted_bam: gather_reassembly_bamfiles/merged_out_bam
@@ -46,14 +46,14 @@ steps:
     out: [sorted_out_bam]
 
   index_out_bam:
-    run: ../../tools/filter_alignment_artifacts/buildindex.cwl
+    run: ../tools/filter_alignment_artifacts/buildindex.cwl
     in:
       java_heap: java_heap
       input_bam_path: sort_out_bam/sorted_out_bam
     out: [sorted_bam_with_index]
 
   filter_alignment_artifacts:
-    run: ../../tools/filter_alignment_artifacts/filter_alignment_artifacts.cwl
+    run: ../tools/filter_alignment_artifacts/filter_alignment_artifacts.cwl
     in:
       java_heap: java_heap
       input_vcf: input_vcf
