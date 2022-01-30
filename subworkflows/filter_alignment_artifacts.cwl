@@ -59,6 +59,7 @@ steps:
       input_vcf: input_vcf
       reassembly_bam: index_out_bam/sorted_bam_with_index
       reference_image: reference_image
+      reference: reference
       output_prefix: output_prefix
       call_on_all: call_on_all
     out: [alignment_artifacts_filtered_vcf]

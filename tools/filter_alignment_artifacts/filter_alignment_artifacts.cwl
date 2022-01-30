@@ -20,6 +20,9 @@ inputs:
     secondaryFiles: [^.bai]
   reference_image: File
   output_prefix: string
+  reference:
+    type: File
+    secondaryFiles: [.fai, ^.dict]
   call_on_all:
     type: boolean
     inputBinding:
@@ -40,4 +43,8 @@ arguments:
       shellQuote: false
       valueFrom: >-
         /usr/local/bin/gatk --java-options "-XX:+UseSerialGC -Xmx$(inputs.java_heap)" FilterAlignmentArtifacts \
-        -V $(inputs.input_vcf.path) -I $(inputs.reassembly_bam.path) --bwa-mem-index-image $(inputs.reference_image.path) -O $(inputs.output_prefix).gatk4_mutect2.raw_filtered.vcf.gz
+        -V $(inputs.input_vcf.path) \
+        -I $(inputs.reassembly_bam.path) \
+        --bwa-mem-index-image $(inputs.reference_image.path) \
+        -R $(inputs.reference.path) \
+        -O $(inputs.output_prefix).gatk4_mutect2.raw_filtered.vcf.gz
