@@ -51,6 +51,11 @@ inputs:
     default: true
     inputBinding:
       prefix: --f1r2-tar-gz
+  gatk4_path:
+    type: string
+    default: "/usr/local/bin/gatk"
+    inputBinding:
+      prefix: --gatk4_path
   # optional params
   active_probability_threshold:
     type: float?
