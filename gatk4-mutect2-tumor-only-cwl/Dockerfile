@@ -8,7 +8,6 @@ COPY ./tools /tools
 COPY ./utils-cwl /utils-cwl
 COPY ./subworkflows /subworkflows
 
-RUN apk add make
 RUN make -C /opt init-pip
 
 WORKDIR /opt
