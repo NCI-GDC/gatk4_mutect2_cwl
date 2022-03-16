@@ -20,8 +20,9 @@ inputs:
   bam_outs:
     type: File[]
     secondaryFiles: [^.bai]
-  call_on_all: boolean
-
+  call_on_all:
+    type: boolean
+    default: false
 outputs:
   alignment_artifacts_filtered_vcf:
     type: File

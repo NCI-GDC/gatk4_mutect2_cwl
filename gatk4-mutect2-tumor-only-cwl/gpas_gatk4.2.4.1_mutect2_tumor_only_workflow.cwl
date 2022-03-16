@@ -56,8 +56,8 @@ inputs:
     doc: If specified, collect F1R2 counts and output files into tar.gz file. Used for Mutect2 filtration. GDC default is true.
   call_on_all:
     type: boolean
-    default: true
-    doc: If specified, alignment artifacts filtration will not skip filtered variants. GDC default is true.
+    default: false
+    doc: If specified, alignment artifacts filtration will not skip filtered variants. GDC default is false.
   usedecoy:
     type: boolean
     default: false

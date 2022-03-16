@@ -36,7 +36,9 @@ inputs:
   f1r2_tar_gz:
     type: boolean
     default: true
-  call_on_all: boolean
+  call_on_all:
+    type: boolean
+    default: false
   # optional params
   active_probability_threshold:
     type: float?
