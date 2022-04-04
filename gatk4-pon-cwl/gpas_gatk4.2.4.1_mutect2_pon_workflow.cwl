@@ -16,6 +16,8 @@ inputs:
   bioclient_config: File
   tumor_gdc_id: string
   tumor_index_gdc_id: string
+  normal_gdc_id: string?
+  normal_index_gdc_id: string?
   reference_gdc_id: string
   reference_faidx_gdc_id: string
   reference_dict_gdc_id: string
@@ -33,6 +35,10 @@ inputs:
   job_uuid:
     type: string
     doc: Job id. Served as a prefix for most outputs.
+  java_heap:
+    type: string
+    default: '32G'
+    doc: Java option flags for all the java cmd. GDC default is 32G.
   chunk_java_heap:
     type: string
     default: '3G'
@@ -194,9 +200,12 @@ steps:
   preparation:
     run: ../utils-cwl/subworkflow/preparation_workflow.cwl
     in:
+      has_normal: []
       bioclient_config: bioclient_config
       tumor_gdc_id: tumor_gdc_id
       tumor_index_gdc_id: tumor_index_gdc_id
+      normal_gdc_id: normal_gdc_id
+      normal_index_gdc_id: normal_index_gdc_id
       reference_fa_gdc_id: reference_gdc_id
       reference_fai_gdc_id: reference_faidx_gdc_id
       reference_dict_gdc_id: reference_dict_gdc_id
@@ -224,7 +233,8 @@ steps:
       nthreads: nthreads
       java_heap: chunk_java_heap
       input:
-        source: [preparation/tumor_with_index]
+        source: preparation/tumor_with_index
+        valueFrom: $[(self)]
       output_prefix: prepare_file_prefix/output_prefix
       reference: preparation/reference_with_index
       intervals: faidx_to_bed/output_bed
@@ -294,15 +304,23 @@ steps:
       tumor_lod_to_emit: tumor_lod_to_emit
     out: [vcfs, reassembly, f1r2s, stats]
 
+  merge_vcfs:
+    run: ../tools/filter_mutect2/merge_vcf.cwl
+    in:
+      java_heap: java_heap
+      output_prefix: prepare_file_prefix/output_prefix
+      vcfs: gatk4_pon/vcfs
+    out: [mutect2_unfiltered_vcf]
+
   upload_vcf:
     run: ../utils-cwl/bio_client/bio_client_upload_pull_uuid.cwl
     in:
       config_file: bioclient_config
       upload_bucket: upload_bucket
       upload_key:
-        source: [job_uuid, gatk4_pon/vcfs]
+        source: [job_uuid, merge_vcfs/mutect2_unfiltered_vcf]
         valueFrom: $(self[0])/$(self[1].basename)
-      local_file: gatk4_pon/vcfs
+      local_file: merge_vcfs/mutect2_unfiltered_vcf
     out: [output]
 
   upload_vcf_index:
@@ -311,10 +329,10 @@ steps:
       config_file: bioclient_config
       upload_bucket: upload_bucket
       upload_key:
-        source: [job_uuid, gatk4_pon/vcfs]
+        source: [job_uuid, merge_vcfs/mutect2_unfiltered_vcf]
         valueFrom: $(self[0])/$(self[1].secondaryFiles[0].basename)
       local_file:
-        source: gatk4_pon/vcfs
+        source: merge_vcfs/mutect2_unfiltered_vcf
         valueFrom: $(self.secondaryFiles[0])
     out: [output]
 
