@@ -12,6 +12,9 @@ requirements:
   - class: ScatterFeatureRequirement
 
 inputs:
+###OPTIONS###
+  has_normal: int[]
+  pon_calling: int[]
 ###BIOCLIENT_INPUTS###
   bioclient_config: File
   tumor_gdc_id: string
@@ -183,6 +186,7 @@ steps:
   prepare_file_prefix:
     run: ../utils-cwl/make_prefix.cwl
     in:
+      has_normal: has_normal
       project_id: project_id
       job_id: job_uuid
       experimental_strategy: experimental_strategy
@@ -191,8 +195,8 @@ steps:
   preparation:
     run: ../utils-cwl/subworkflow/preparation_workflow.cwl
     in:
-      has_normal: []
-      pon_calling: []
+      has_normal: has_normal
+      pon_calling: pon_calling
       bioclient_config: bioclient_config
       tumor_gdc_id: tumor_gdc_id
       tumor_index_gdc_id: tumor_index_gdc_id
