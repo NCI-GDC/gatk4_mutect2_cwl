@@ -11,6 +11,7 @@ requirements:
 class: Workflow
 
 inputs:
+  pon_calling: int[]
   has_normal: int[]
   tumor: File
   tumor_index: File
@@ -37,13 +38,13 @@ outputs:
     type: File
     outputSource: make_reference/output
   pon_with_index:
-    type: File
+    type: File?
     outputSource: make_pon/output
   biallelic_ref_with_index:
-    type: File
+    type: File?
     outputSource: make_biallelic_ref/output
   germline_ref_with_index:
-    type: File
+    type: File?
     outputSource: make_germline_ref/output
 
 steps:
@@ -113,6 +114,7 @@ steps:
   make_pon:
     run: ../make_secondary.cwl
     in:
+      pon_calling: pon_calling
       parent_file: pon
       children:
         source: pon_index
@@ -122,6 +124,7 @@ steps:
   make_biallelic_ref:
     run: ../make_secondary.cwl
     in:
+      pon_calling: pon_calling
       parent_file: biallelic_ref
       children:
         source: biallelic_ref_index
@@ -131,6 +134,7 @@ steps:
   make_germline_ref:
     run: ../make_secondary.cwl
     in:
+      pon_calling: pon_calling
       parent_file: germline_ref
       children:
         source: germline_ref_index

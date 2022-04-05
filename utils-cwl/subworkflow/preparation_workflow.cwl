@@ -12,6 +12,8 @@ requirements:
 inputs:
   bioclient_config:
     type: File
+  pon_calling:
+    type: int[]
   has_normal:
     type: int[]
   tumor_gdc_id:
@@ -29,19 +31,19 @@ inputs:
   reference_fai_gdc_id:
     type: string
   reference_image_gdc_id:
-    type: string
+    type: string?
   germline_resource_gdc_id:
-    type: string
+    type: string?
   germline_resource_index_gdc_id:
-    type: string
+    type: string?
   common_biallelic_variants_gdc_id:
-    type: string
+    type: string?
   common_biallelic_variants_index_gdc_id:
-    type: string
+    type: string?
   panel_of_normal_gdc_id:
-    type: string
+    type: string?
   panel_of_normal_index_gdc_id:
-    type: string
+    type: string?
 
 outputs:
   tumor_with_index:
@@ -135,6 +137,7 @@ steps:
   reference_image_download:
     run: ../bio_client/bio_client_download.cwl
     in:
+      pon_calling: pon_calling
       config_file: bioclient_config
       download_handle: reference_image_gdc_id
     out: [output]
@@ -142,6 +145,7 @@ steps:
   germline_resource_download:
     run: ../bio_client/bio_client_download.cwl
     in:
+      pon_calling: pon_calling
       config_file: bioclient_config
       download_handle: germline_resource_gdc_id
     out: [output]
@@ -149,6 +153,7 @@ steps:
   germline_resource_index_download:
     run: ../bio_client/bio_client_download.cwl
     in:
+      pon_calling: pon_calling
       config_file: bioclient_config
       download_handle: germline_resource_index_gdc_id
     out: [output]
@@ -156,6 +161,7 @@ steps:
   common_biallelic_variants_download:
     run: ../bio_client/bio_client_download.cwl
     in:
+      pon_calling: pon_calling
       config_file: bioclient_config
       download_handle: common_biallelic_variants_gdc_id
     out: [output]
@@ -163,6 +169,7 @@ steps:
   common_biallelic_variants_index_download:
     run: ../bio_client/bio_client_download.cwl
     in:
+      pon_calling: pon_calling
       config_file: bioclient_config
       download_handle: common_biallelic_variants_index_gdc_id
     out: [output]
@@ -170,6 +177,7 @@ steps:
   panel_of_normal_download:
     run: ../bio_client/bio_client_download.cwl
     in:
+      pon_calling: pon_calling
       config_file: bioclient_config
       download_handle: panel_of_normal_gdc_id
     out: [output]
@@ -177,6 +185,7 @@ steps:
   panel_of_normal_index_download:
     run: ../bio_client/bio_client_download.cwl
     in:
+      pon_calling: pon_calling
       config_file: bioclient_config
       download_handle: panel_of_normal_index_gdc_id
     out: [output]
@@ -184,6 +193,7 @@ steps:
   stage:
     run: ./stage_workflow.cwl
     in:
+      pon_calling: pon_calling
       has_normal: has_normal
       tumor: tumor_download/output
       tumor_index: tumor_index_download/output

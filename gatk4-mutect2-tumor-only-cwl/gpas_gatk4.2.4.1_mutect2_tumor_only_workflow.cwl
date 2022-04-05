@@ -14,6 +14,7 @@ requirements:
 inputs:
 ###CONDITIONAL_INPUTS###
   has_normal: int[]
+  pon_calling: int[]
 ###BIOCLIENT_INPUTS###
   bioclient_config: File
   tumor_gdc_id: string
@@ -207,6 +208,7 @@ steps:
   preparation:
     run: ../utils-cwl/subworkflow/preparation_workflow.cwl
     in:
+      pon_calling: pon_calling
       bioclient_config: bioclient_config
       has_normal: has_normal
       tumor_gdc_id: tumor_gdc_id

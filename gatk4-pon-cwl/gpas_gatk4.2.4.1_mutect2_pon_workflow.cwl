@@ -16,18 +16,9 @@ inputs:
   bioclient_config: File
   tumor_gdc_id: string
   tumor_index_gdc_id: string
-  normal_gdc_id: string?
-  normal_index_gdc_id: string?
   reference_gdc_id: string
   reference_faidx_gdc_id: string
   reference_dict_gdc_id: string
-  reference_image_gdc_id: string
-  germline_resource_gdc_id: string
-  germline_resource_index_gdc_id: string
-  common_biallelic_variants_gdc_id: string
-  common_biallelic_variants_index_gdc_id: string
-  panel_of_normal_gdc_id: string
-  panel_of_normal_index_gdc_id: string
   upload_bucket: string
 ###GENERAL_INPUTS###
   project_id: string?
@@ -201,21 +192,13 @@ steps:
     run: ../utils-cwl/subworkflow/preparation_workflow.cwl
     in:
       has_normal: []
+      pon_calling: []
       bioclient_config: bioclient_config
       tumor_gdc_id: tumor_gdc_id
       tumor_index_gdc_id: tumor_index_gdc_id
-      normal_gdc_id: normal_gdc_id
-      normal_index_gdc_id: normal_index_gdc_id
       reference_fa_gdc_id: reference_gdc_id
       reference_fai_gdc_id: reference_faidx_gdc_id
       reference_dict_gdc_id: reference_dict_gdc_id
-      reference_image_gdc_id: reference_image_gdc_id
-      germline_resource_gdc_id: germline_resource_gdc_id
-      germline_resource_index_gdc_id: germline_resource_index_gdc_id
-      common_biallelic_variants_gdc_id: common_biallelic_variants_gdc_id
-      common_biallelic_variants_index_gdc_id: common_biallelic_variants_index_gdc_id
-      panel_of_normal_gdc_id: panel_of_normal_gdc_id
-      panel_of_normal_index_gdc_id: panel_of_normal_index_gdc_id
     out: [tumor_with_index, normal_with_index, reference_with_index, reference_image, germline_resource_with_index, common_biallelic_variants_with_index, panel_of_normal_with_index]
 
   faidx_to_bed:
