@@ -12,25 +12,16 @@ requirements:
   - class: ScatterFeatureRequirement
 
 inputs:
-###CONDITIONAL_INPUTS###
+###OPTIONS###
   has_normal: int[]
   pon_calling: int[]
 ###BIOCLIENT_INPUTS###
   bioclient_config: File
   tumor_gdc_id: string
   tumor_index_gdc_id: string
-  normal_gdc_id: string?
-  normal_index_gdc_id: string?
   reference_gdc_id: string
   reference_faidx_gdc_id: string
   reference_dict_gdc_id: string
-  reference_image_gdc_id: string
-  germline_resource_gdc_id: string
-  germline_resource_index_gdc_id: string
-  common_biallelic_variants_gdc_id: string
-  common_biallelic_variants_index_gdc_id: string
-  panel_of_normal_gdc_id: string
-  panel_of_normal_index_gdc_id: string
   upload_bucket: string
 ###GENERAL_INPUTS###
   project_id: string?
@@ -49,20 +40,20 @@ inputs:
   nthreads: int
   bam_output:
     type: boolean
-    default: true
+    default: false
     doc: If specified, assembled haplotypes wil be written to bam. Used for alignment artifacts filtration. GDC default is true.
   f1r2_tar_gz:
     type: boolean
-    default: true
-    doc: If specified, collect F1R2 counts and output files into tar.gz file. Used for Mutect2 filtration. GDC default is true.
-  call_on_all:
-    type: boolean
     default: false
-    doc: If specified, alignment artifacts filtration will not skip filtered variants. GDC default is false.
+    doc: If specified, collect F1R2 counts and output files into tar.gz file. Used for Mutect2 filtration. GDC default is true.
   usedecoy:
     type: boolean
     default: false
     doc: If specified, it will include all the decoy sequences in the faidx. GDC default is false.
+  max_mnp_distance:
+    type: int
+    default: 0
+
 ###OPTIONAL_INPUTS###
   active_probability_threshold:
     type: float?
@@ -126,8 +117,6 @@ inputs:
     type: int?
   max_assembly_region_size:
     type: int?
-  max_mnp_distance:
-    type: int?
   max_num_haplotypes_in_population:
     type: int?
   max_population_af:
@@ -156,8 +145,6 @@ inputs:
     type: int?
   native_pair_hmm_use_double_precision:
     type: boolean?
-  normal_lod:
-    type: float?
   num_pruning_samples:
     type: int?
   pair_hmm_gap_continuation_penalty:
@@ -188,10 +175,10 @@ inputs:
     type: float?
 
 outputs:
-  tumor_only_vcf_uuid:
+  individual_pon_vcf_uuid:
     type: string
     outputSource: uuid_vcf/output
-  tumor_only_vcf_index_uuid:
+  individual_pon_vcf_index_uuid:
     type: string
     outputSource: uuid_vcf_index/output
 
@@ -208,23 +195,14 @@ steps:
   preparation:
     run: ../utils-cwl/subworkflow/preparation_workflow.cwl
     in:
+      has_normal: has_normal
       pon_calling: pon_calling
       bioclient_config: bioclient_config
-      has_normal: has_normal
       tumor_gdc_id: tumor_gdc_id
       tumor_index_gdc_id: tumor_index_gdc_id
-      normal_gdc_id: normal_gdc_id
-      normal_index_gdc_id: normal_index_gdc_id
       reference_fa_gdc_id: reference_gdc_id
       reference_fai_gdc_id: reference_faidx_gdc_id
       reference_dict_gdc_id: reference_dict_gdc_id
-      reference_image_gdc_id: reference_image_gdc_id
-      germline_resource_gdc_id: germline_resource_gdc_id
-      germline_resource_index_gdc_id: germline_resource_index_gdc_id
-      common_biallelic_variants_gdc_id: common_biallelic_variants_gdc_id
-      common_biallelic_variants_index_gdc_id: common_biallelic_variants_index_gdc_id
-      panel_of_normal_gdc_id: panel_of_normal_gdc_id
-      panel_of_normal_index_gdc_id: panel_of_normal_index_gdc_id
     out: [tumor_with_index, normal_with_index, reference_with_index, reference_image, germline_resource_with_index, common_biallelic_variants_with_index, panel_of_normal_with_index]
 
   faidx_to_bed:
@@ -236,25 +214,19 @@ steps:
       usedecoy: usedecoy
     out: [output_bed]
 
-  gatk4_mutect2:
-    run: ../subworkflows/gatk4.2.4.1_mutect2_workflow.cwl
+  gatk4_pon:
+    run: ../tools/filter_mutect2/gatk4_multithread_mutect2.cwl
     in:
-      has_normal: has_normal
-      output_prefix: prepare_file_prefix/output_prefix
-      java_heap: java_heap
-      chunk_java_heap: chunk_java_heap
       nthreads: nthreads
+      java_heap: chunk_java_heap
+      input:
+        source: [preparation/tumor_with_index, preparation/normal_with_index]
+        valueFrom: $([self[0], self[1]])
+      output_prefix: prepare_file_prefix/output_prefix
       reference: preparation/reference_with_index
-      reference_image: preparation/reference_image
-      common_variant_reference: preparation/common_biallelic_variants_with_index
       intervals: faidx_to_bed/output_bed
-      tumor_bam: preparation/tumor_with_index
-      normal_bam: preparation/normal_with_index
       bam_output: bam_output
       f1r2_tar_gz: f1r2_tar_gz
-      call_on_all: call_on_all
-      germline_resource: preparation/germline_resource_with_index
-      panel_of_normals: preparation/panel_of_normal_with_index
       active_probability_threshold: active_probability_threshold
       adaptive_pruning_initial_error_rate: adaptive_pruning_initial_error_rate
       af_of_alleles_not_in_resource: af_of_alleles_not_in_resource
@@ -280,6 +252,7 @@ steps:
       genotype_filtered_alleles: genotype_filtered_alleles
       genotype_germline_sites: genotype_germline_sites
       genotype_pon_sites: genotype_pon_sites
+      germline_resource: preparation/germline_resource_with_index
       gvcf_lod_band: gvcf_lod_band
       ignore_itr_artifacts: ignore_itr_artifacts
       initial_tumor_lod: initial_tumor_lod
@@ -301,10 +274,10 @@ steps:
       mitochondria_mode: mitochondria_mode
       native_pair_hmm_threads: native_pair_hmm_threads
       native_pair_hmm_use_double_precision: native_pair_hmm_use_double_precision
-      normal_lod: normal_lod
       num_pruning_samples: num_pruning_samples
       pair_hmm_gap_continuation_penalty: pair_hmm_gap_continuation_penalty
       pair_hmm_implementation: pair_hmm_implementation
+      panel_of_normals: preparation/panel_of_normal_with_index
       pcr_indel_model: pcr_indel_model
       pcr_indel_qual: pcr_indel_qual
       pcr_snv_qual: pcr_snv_qual
@@ -316,7 +289,15 @@ steps:
       sites_only_vcf_output: sites_only_vcf_output
       smith_waterman: smith_waterman
       tumor_lod_to_emit: tumor_lod_to_emit
-    out: [gatk4.2.4.1_mutect2_filtered_vcf]
+    out: [vcfs, reassembly, f1r2s, stats]
+
+  merge_vcfs:
+    run: ../tools/filter_mutect2/merge_vcf.cwl
+    in:
+      java_heap: java_heap
+      output_prefix: prepare_file_prefix/output_prefix
+      vcfs: gatk4_pon/vcfs
+    out: [mutect2_unfiltered_vcf]
 
   upload_vcf:
     run: ../utils-cwl/bio_client/bio_client_upload_pull_uuid.cwl
@@ -324,9 +305,9 @@ steps:
       config_file: bioclient_config
       upload_bucket: upload_bucket
       upload_key:
-        source: [job_uuid, gatk4_mutect2/gatk4.2.4.1_mutect2_filtered_vcf]
+        source: [job_uuid, merge_vcfs/mutect2_unfiltered_vcf]
         valueFrom: $(self[0])/$(self[1].basename)
-      local_file: gatk4_mutect2/gatk4.2.4.1_mutect2_filtered_vcf
+      local_file: merge_vcfs/mutect2_unfiltered_vcf
     out: [output]
 
   upload_vcf_index:
@@ -335,10 +316,10 @@ steps:
       config_file: bioclient_config
       upload_bucket: upload_bucket
       upload_key:
-        source: [job_uuid, gatk4_mutect2/gatk4.2.4.1_mutect2_filtered_vcf]
+        source: [job_uuid, merge_vcfs/mutect2_unfiltered_vcf]
         valueFrom: $(self[0])/$(self[1].secondaryFiles[0].basename)
       local_file:
-        source: gatk4_mutect2/gatk4.2.4.1_mutect2_filtered_vcf
+        source: merge_vcfs/mutect2_unfiltered_vcf
         valueFrom: $(self.secondaryFiles[0])
     out: [output]
 

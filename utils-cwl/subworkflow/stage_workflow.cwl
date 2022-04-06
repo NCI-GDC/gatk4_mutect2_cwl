@@ -11,6 +11,7 @@ requirements:
 class: Workflow
 
 inputs:
+  pon_calling: int[]
   has_normal: int[]
   tumor: File
   tumor_index: File
@@ -19,32 +20,32 @@ inputs:
   reference: File
   reference_fai: File
   reference_dict: File
-  germline_ref: File
-  germline_ref_index: File
-  biallelic_ref: File
-  biallelic_ref_index: File
-  pon: File
-  pon_index: File
+  germline_ref: File?
+  germline_ref_index: File?
+  biallelic_ref: File?
+  biallelic_ref_index: File?
+  pon: File?
+  pon_index: File?
 
 outputs:
   tumor_with_index:
     type: File
     outputSource: make_tumor_bam/output
-  normal_with_index:
-    type: File?
-    outputSource: extract_normal/input_file
   reference_with_index:
     type: File
     outputSource: make_reference/output
+  normal_with_index:
+    type: File?
+    outputSource: extract_normal/input_file
   pon_with_index:
-    type: File
-    outputSource: make_pon/output
+    type: File?
+    outputSource: extract_pon/input_file
   biallelic_ref_with_index:
-    type: File
-    outputSource: make_biallelic_ref/output
+    type: File?
+    outputSource: extract_biallelic_ref/input_file
   germline_ref_with_index:
-    type: File
-    outputSource: make_germline_ref/output
+    type: File?
+    outputSource: extract_germline_ref/input_file
 
 steps:
   standardize_tumor_bai:
@@ -112,27 +113,51 @@ steps:
 
   make_pon:
     run: ../make_secondary.cwl
+    scatter: pon_calling
     in:
+      pon_calling: pon_calling
       parent_file: pon
       children:
         source: pon_index
         valueFrom: $([self])
     out: [ output ]
 
+  extract_pon:
+    run: ../extract_from_conditional_array.cwl
+    in:
+      input_array: make_pon/output
+    out: [input_file]
+
   make_biallelic_ref:
     run: ../make_secondary.cwl
+    scatter: pon_calling
     in:
+      pon_calling: pon_calling
       parent_file: biallelic_ref
       children:
         source: biallelic_ref_index
         valueFrom: $([self])
     out: [ output ]
 
+  extract_biallelic_ref:
+    run: ../extract_from_conditional_array.cwl
+    in:
+      input_array: make_biallelic_ref/output
+    out: [input_file]
+
   make_germline_ref:
     run: ../make_secondary.cwl
+    scatter: pon_calling
     in:
+      pon_calling: pon_calling
       parent_file: germline_ref
       children:
         source: germline_ref_index
         valueFrom: $([self])
     out: [ output ]
+
+  extract_germline_ref:
+    run: ../extract_from_conditional_array.cwl
+    in:
+      input_array: make_germline_ref/output
+    out: [input_file]

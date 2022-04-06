@@ -12,6 +12,8 @@ requirements:
 inputs:
   bioclient_config:
     type: File
+  pon_calling:
+    type: int[]
   has_normal:
     type: int[]
   tumor_gdc_id:
@@ -29,41 +31,41 @@ inputs:
   reference_fai_gdc_id:
     type: string
   reference_image_gdc_id:
-    type: string
+    type: string?
   germline_resource_gdc_id:
-    type: string
+    type: string?
   germline_resource_index_gdc_id:
-    type: string
+    type: string?
   common_biallelic_variants_gdc_id:
-    type: string
+    type: string?
   common_biallelic_variants_index_gdc_id:
-    type: string
+    type: string?
   panel_of_normal_gdc_id:
-    type: string
+    type: string?
   panel_of_normal_index_gdc_id:
-    type: string
+    type: string?
 
 outputs:
   tumor_with_index:
     type: File
     outputSource: stage/tumor_with_index
-  normal_with_index:
-    type: File?
-    outputSource: stage/normal_with_index
   reference_with_index:
     type: File
     outputSource: stage/reference_with_index
+  normal_with_index:
+    type: File?
+    outputSource: stage/normal_with_index
   reference_image:
-    type: File
-    outputSource: reference_image_download/output
+    type: File?
+    outputSource: extract_reference_image/input_file
   germline_resource_with_index:
-    type: File
+    type: File?
     outputSource: stage/germline_ref_with_index
   common_biallelic_variants_with_index:
-    type: File
+    type: File?
     outputSource: stage/biallelic_ref_with_index
   panel_of_normal_with_index:
-    type: File
+    type: File?
     outputSource: stage/pon_with_index
 
 steps:
@@ -134,56 +136,113 @@ steps:
 
   reference_image_download:
     run: ../bio_client/bio_client_download.cwl
+    scatter: pon_calling
     in:
+      pon_calling: pon_calling
       config_file: bioclient_config
       download_handle: reference_image_gdc_id
     out: [output]
 
+  extract_reference_image:
+    run: ../extract_from_conditional_array.cwl
+    in:
+      input_array: reference_image_download/output
+    out: [input_file]
+
   germline_resource_download:
     run: ../bio_client/bio_client_download.cwl
+    scatter: pon_calling
     in:
+      pon_calling: pon_calling
       config_file: bioclient_config
       download_handle: germline_resource_gdc_id
     out: [output]
 
   germline_resource_index_download:
     run: ../bio_client/bio_client_download.cwl
+    scatter: pon_calling
     in:
+      pon_calling: pon_calling
       config_file: bioclient_config
       download_handle: germline_resource_index_gdc_id
     out: [output]
 
+  extract_germline_resource:
+    run: ../extract_from_conditional_array.cwl
+    in:
+      input_array: germline_resource_download/output
+    out: [input_file]
+
+  extract_germline_resource_index:
+    run: ../extract_from_conditional_array.cwl
+    in:
+      input_array: germline_resource_index_download/output
+    out: [input_file]
+
   common_biallelic_variants_download:
     run: ../bio_client/bio_client_download.cwl
+    scatter: pon_calling
     in:
+      pon_calling: pon_calling
       config_file: bioclient_config
       download_handle: common_biallelic_variants_gdc_id
     out: [output]
 
   common_biallelic_variants_index_download:
     run: ../bio_client/bio_client_download.cwl
+    scatter: pon_calling
     in:
+      pon_calling: pon_calling
       config_file: bioclient_config
       download_handle: common_biallelic_variants_index_gdc_id
     out: [output]
 
+  extract_common_biallelic:
+    run: ../extract_from_conditional_array.cwl
+    in:
+      input_array: common_biallelic_variants_download/output
+    out: [input_file]
+
+  extract_common_biallelic_index:
+    run: ../extract_from_conditional_array.cwl
+    in:
+      input_array: common_biallelic_variants_index_download/output
+    out: [input_file]
+
   panel_of_normal_download:
     run: ../bio_client/bio_client_download.cwl
+    scatter: pon_calling
     in:
+      pon_calling: pon_calling
       config_file: bioclient_config
       download_handle: panel_of_normal_gdc_id
     out: [output]
 
   panel_of_normal_index_download:
     run: ../bio_client/bio_client_download.cwl
+    scatter: pon_calling
     in:
+      pon_calling: pon_calling
       config_file: bioclient_config
       download_handle: panel_of_normal_index_gdc_id
     out: [output]
 
+  extract_panel_of_normal:
+    run: ../extract_from_conditional_array.cwl
+    in:
+      input_array: panel_of_normal_download/output
+    out: [input_file]
+
+  extract_panel_of_normal_index:
+    run: ../extract_from_conditional_array.cwl
+    in:
+      input_array: panel_of_normal_index_download/output
+    out: [input_file]
+
   stage:
     run: ./stage_workflow.cwl
     in:
+      pon_calling: pon_calling
       has_normal: has_normal
       tumor: tumor_download/output
       tumor_index: tumor_index_download/output
@@ -192,10 +251,10 @@ steps:
       reference: reference_fa_download/output
       reference_fai: reference_fai_download/output
       reference_dict: reference_dict_download/output
-      germline_ref: germline_resource_download/output
-      germline_ref_index: germline_resource_index_download/output
-      biallelic_ref: common_biallelic_variants_download/output
-      biallelic_ref_index: common_biallelic_variants_index_download/output
-      pon: panel_of_normal_download/output
-      pon_index: panel_of_normal_index_download/output
+      germline_ref: extract_germline_resource/input_file
+      germline_ref_index: extract_germline_resource_index/input_file
+      biallelic_ref: extract_common_biallelic/input_file
+      biallelic_ref_index: extract_common_biallelic_index/input_file
+      pon: extract_panel_of_normal/input_file
+      pon_index: extract_panel_of_normal_index/input_file
     out: [tumor_with_index, normal_with_index, reference_with_index, germline_ref_with_index, biallelic_ref_with_index, pon_with_index]
