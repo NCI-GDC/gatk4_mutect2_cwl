@@ -220,8 +220,8 @@ steps:
       nthreads: nthreads
       java_heap: chunk_java_heap
       input:
-        source: preparation/tumor_with_index
-        valueFrom: $[(self)]
+        source: [preparation/tumor_with_index, preparation/normal_with_index]
+        valueFrom: $([self[0], self[1]])
       output_prefix: prepare_file_prefix/output_prefix
       reference: preparation/reference_with_index
       intervals: faidx_to_bed/output_bed
