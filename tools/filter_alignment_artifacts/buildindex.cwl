@@ -8,7 +8,7 @@ requirements:
   - class: InlineJavascriptRequirement
   - class: ShellCommandRequirement
   - class: DockerRequirement
-    dockerPull: quay.io/ncigdc/gatk4-mutect2-tool:0.1.0-20-g6b2c31c
+    dockerPull: quay.io/ncigdc/gatk:4.2.4.1
   - class: InitialWorkDirRequirement
     listing:
       - entry: $(inputs.input_bam_path)
