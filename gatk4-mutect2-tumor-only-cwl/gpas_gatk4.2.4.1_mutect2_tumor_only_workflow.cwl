@@ -111,9 +111,11 @@ inputs:
   genotype_filtered_alleles:
     type: boolean?
   genotype_germline_sites:
-    type: boolean?
+    type: boolean
+    default: true
   genotype_pon_sites:
-    type: boolean?
+    type: boolean
+    default: true
   gvcf_lod_band:
     type: float?
   ignore_itr_artifacts:
