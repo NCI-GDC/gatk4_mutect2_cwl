@@ -1,17 +1,24 @@
-FROM quay.io/ncigdc/bio-alpine:py36-8dee591
+ARG REGISTRY=docker.osdc.io
+FROM ${REGISTRY}/ncigdc/bio-alpine:cwltool3 as builder
 
 ARG WORKFLOW
 
-COPY ./${WORKFLOW} /opt
-# TODO: Copy additional directories as needed
+COPY ./${WORKFLOW} /opt 
 COPY ./tools /tools
-COPY ./utils-cwl /utils-cwl
 COPY ./subworkflows /subworkflows
-
-RUN make -C /opt init-pip
+COPY ./utils-cwl /utils-cwl
 
 WORKDIR /opt
 
-ENTRYPOINT ["make"]
+RUN just validate && just pack 
 
-CMD ["pack"]
+FROM ${REGISTRY}/ncigdc/bio-alpine:just
+
+COPY --from=builder /opt/cwl.json /opt/cwl.json
+COPY --from=builder /opt/justfile /opt/justfile
+
+WORKDIR /opt
+
+ENTRYPOINT ["just"]
+
+CMD ["_print-cwl"]
