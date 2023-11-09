@@ -24,6 +24,7 @@ cwltool gatk4_mutect2.cwl inputs.yaml
 
 This will launch the CWL tool and run the MuTect2 workflow. The output files will be written to the `./output` directory.
 
+
 ## License
 
 This MuTect2 CWL tool is released under the Apache 2.0 license. See the LICENSE file for more information.
