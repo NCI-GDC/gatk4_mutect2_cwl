@@ -1,18 +1,15 @@
 {
-  "template": "git@github.com:NCI-GDC/bio-cwl-template.git",
-  "commit": "6109b03edfd45e3c7f5e37a8a91772fa1e8eb05d",
-  "context": {
-    "cookiecutter": {
-      "_copy_without_render": [
-        "*justfile",
-        "*README.md"
-      ],
-      "repository_name": "gatk4_mutect2_cwl",
-      "workflow_name": "gatk4-mutect2-calling-cwl",
-      "commit": "33c14f9ed02083f93091e218a8737a932fcf7a53",
-      "_template": "git@github.com:NCI-GDC/bio-cwl-template.git"
-    }
-  },
-  "directory": null,
-  "checkout": null
-}
+    "template": "git@github.com:NCI-GDC/bio-cwl-template.git",
+    "commit": "40df4b333fe6db6386fd907b01c6a23172130047",
+    "context": {
+      "cookiecutter": {
+        "repository_name": "gatk4_mutect2_cwl",
+        "workflow_name": "gatk4-mutect2-tumor-only-cwl",
+        "commit": "40df4b333fe6db6386fd907b01c6a23172130047",
+        "_template": "git@github.com:NCI-GDC/bio-cwl-template.git"
+      }
+    },
+    "directory": null,
+    "checkout": null
+  }
+
