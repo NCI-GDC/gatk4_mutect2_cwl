@@ -4,7 +4,7 @@
     "context": {
       "cookiecutter": {
         "repository_name": "gatk4_mutect2_cwl",
-        "workflow_name": "gatk4-mutect2-tumor-only-cwl",
+        "workflow_name": "gatk4-mutect2-calling-cwl",
         "commit": "40df4b333fe6db6386fd907b01c6a23172130047",
         "_template": "git@github.com:NCI-GDC/bio-cwl-template.git"
       }

@@ -5,8 +5,8 @@ ARG WORKFLOW
 
 COPY ./${WORKFLOW} /opt 
 COPY ./tools /tools
-COPY ./subworkflows /subworkflows
 COPY ./utils-cwl /utils-cwl
+COPY ./subworkflows /subworkflows
 
 WORKDIR /opt
 
