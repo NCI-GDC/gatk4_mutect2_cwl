@@ -1,14 +1,11 @@
 #!/usr/bin/env cwl-runner
 
-cwlVersion: v1.2
+cwlVersion: v1.0
 
 requirements:
   - class: DockerRequirement
-    dockerImageId: "alpine"
+    dockerPull: alpine
   - class: InlineJavascriptRequirement
-    dockerRequirement:
-      class: DockerRequirement
-      dockerImageId: "alpine"
   - class: InitialWorkDirRequirement
     listing: |
       ${
@@ -36,7 +33,7 @@ outputs:
     secondaryFiles: |
       ${
          var ret = [];
-         var locbase = inputs.parent_file.location.substr(0, inputs.parent_file.location.lastIndexOf('/'))
+         var locbase = self.location.substr(0, self.location.lastIndexOf('/'))
          for( var i = 0; i < inputs.children.length; i++ ) {
            ret.push({"class": "File", "location": locbase + '/' + inputs.children[i].basename});
          }
