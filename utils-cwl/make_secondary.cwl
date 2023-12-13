@@ -6,7 +6,7 @@ class: CommandLineTool
 
 requirements:
   - class: DockerRequirement
-    dockerPull: "{{ docker_repository }}/bio-alpine:{{ bio_alpine }}"
+    dockerPull: "{{ docker_repo }}/bio-alpine:{{ bio_alpine }}"
   - class: InlineJavascriptRequirement
   - class: InitialWorkDirRequirement
     listing: |
