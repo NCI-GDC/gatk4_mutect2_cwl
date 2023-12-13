@@ -1,14 +1,13 @@
 #!/usr/bin/env cwl-runner
 
-cwlVersion: v1.2
+id: make_secondary
+cwlVersion: v1.0
+class: CommandLineTool
 
 requirements:
   - class: DockerRequirement
-    dockerImageId: "alpine"
+    dockerPull: "{{ docker_repository }}/bio-alpine:{{ bio_alpine }}"
   - class: InlineJavascriptRequirement
-    dockerRequirement:
-      class: DockerRequirement
-      dockerImageId: "alpine"
   - class: InitialWorkDirRequirement
     listing: |
       ${
@@ -18,8 +17,6 @@ requirements:
            };
            return ret
        }
-
-class: CommandLineTool
 
 inputs:
   parent_file:
