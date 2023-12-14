@@ -9,14 +9,9 @@ requirements:
     dockerPull: "{{ docker_repo }}/bio-alpine:{{ bio_alpine }}"
   - class: InlineJavascriptRequirement
   - class: InitialWorkDirRequirement
-    listing: |
-      ${
-           var ret = [{"entryname": inputs.parent_file.basename, "entry": inputs.parent_file}];
-           for( var i = 0; i < inputs.children.length; i++ ) {
-               ret.push({"entryname": inputs.children[i].basename, "entry": inputs.children[i]});
-           };
-           return ret
-       }
+    listing:
+      - $(inputs.parent_file)
+      - $(inputs.children)
 
 inputs:
   parent_file:
@@ -30,14 +25,6 @@ outputs:
     type: File
     outputBinding:
       glob: $(inputs.parent_file.basename)
-    secondaryFiles: |
-      ${
-         var ret = [];
-         var locbase = inputs.parent_file.location.substr(0, inputs.parent_file.location.lastIndexOf('/'))
-         for( var i = 0; i < inputs.children.length; i++ ) {
-           ret.push({"class": "File", "location": locbase + '/' + inputs.children[i].basename});
-         }
-         return ret
-       }
+    secondaryFiles: $(inputs.children)
 
 baseCommand: "true"
