@@ -8,7 +8,7 @@ requirements:
   - class: InlineJavascriptRequirement
   - class: ShellCommandRequirement
   - class: DockerRequirement
-    dockerPull: quay.io/ncigdc/gatk4-mutect2-tool:0.2.1
+    dockerPull: quay.io/ncigdc/gatk4-mutect2-tool:0.2.1-19-gcf55378
 
 inputs:
   tumor_bam:
