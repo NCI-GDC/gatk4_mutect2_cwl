@@ -1,9 +1,5 @@
 Further documentation available [here](https://docs.google.com/document/d/17NFwGvn4vMEXZV9Qmg30BqAcKrdxBYCOB4pFdkkwIIo/edit#)
 
-# Using this template
-
-This template repository should be used as the base for new workflow repositories which will use the new Docker packaging scheme.
-
 # CWL Workflow Development
 
 ## Pre-requisites
