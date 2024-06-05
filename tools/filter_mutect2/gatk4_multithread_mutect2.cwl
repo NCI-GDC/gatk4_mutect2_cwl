@@ -7,7 +7,7 @@ class: CommandLineTool
 requirements:
   - class: InlineJavascriptRequirement
   - class: DockerRequirement
-    dockerPull: quay.io/ncigdc/gatk4-mutect2-tool:0.2.1-19-gcf55378
+    dockerPull: quay.io/ncigdc/gatk4-mutect2-tool:0.2.1-20-gf873abc
 
 inputs:
   # wrapper params
