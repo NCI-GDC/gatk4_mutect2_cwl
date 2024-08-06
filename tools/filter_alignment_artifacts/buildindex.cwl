@@ -13,6 +13,11 @@ requirements:
     listing:
       - entry: $(inputs.input_bam_path)
         entryname: $(inputs.input_bam_path.basename)
+  - class: ResourceRequirement
+    coresMin: 1
+    coresMax: 1
+    ramMin: 2000
+    ramMax: 4000
 
 inputs:
   java_heap: string

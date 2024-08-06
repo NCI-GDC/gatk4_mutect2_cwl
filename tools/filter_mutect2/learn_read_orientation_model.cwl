@@ -9,6 +9,11 @@ requirements:
   - class: ShellCommandRequirement
   - class: DockerRequirement
     dockerPull: quay.io/ncigdc/gatk4-mutect2-tool:0.2.1-20-gb81bfd1
+  - class: ResourceRequirement
+    coresMin: 1
+    coresMax: 1
+    ramMin: 8000
+    ramMax: 16000
 
 inputs:
   java_heap: string
