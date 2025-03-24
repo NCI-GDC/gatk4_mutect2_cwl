@@ -1,14 +1,13 @@
-#!/usr/bin/env cwl-runner
-
-cwlVersion: v1.0
-
 class: CommandLineTool
-
+cwlVersion: v1.0
+id: faidx_to_bed
 requirements:
   - class: DockerRequirement
     dockerPull: alpine
   - class: InlineJavascriptRequirement
   - class: ShellCommandRequirement
+doc: |
+  Faidx to bed file.
 
 inputs:
   ref_fai:
@@ -36,7 +35,7 @@ arguments:
          if( inputs.usedecoy ) {
              cmd.push("\'{print $1 \"\\t0\\t\" $2}\'")
          } else {
-             cmd.push("\'{if($0~/^chr[1-9MXY]+[[:space:]]/){print $1 \"\\t0\\t\" $2}}\'")
+             cmd.push("\'{if($0~/^chr[0-9MXY]+[[:space:]]/){print $1 \"\\t0\\t\" $2}}\'")
          }
          return(cmd.join(' '))
        }
