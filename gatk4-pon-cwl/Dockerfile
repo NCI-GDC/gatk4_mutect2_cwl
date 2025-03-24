@@ -3,14 +3,14 @@ FROM ${REGISTRY}/ncigdc/bio-alpine:cwltool3 as builder
 
 ARG WORKFLOW
 
-COPY ./${WORKFLOW} /opt 
+COPY ./${WORKFLOW} /opt
 COPY ./tools /tools
-COPY ./subworkflows /subworkflows
 COPY ./utils-cwl /utils-cwl
+COPY ./subworkflows /subworkflows
 
 WORKDIR /opt
 
-RUN just validate && just pack 
+RUN just validate pack
 
 FROM ${REGISTRY}/ncigdc/bio-alpine:just
 
