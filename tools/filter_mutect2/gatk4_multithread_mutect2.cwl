@@ -8,6 +8,10 @@ requirements:
   - class: InlineJavascriptRequirement
   - class: DockerRequirement
     dockerPull: {{ docker_repo }}/gatk4-mutect2-tool:{{ gatk4-mutect2-tool }}
+  - class: ResourceRequirement
+    coresMin: 1
+    ramMin: 32000
+    ramMax: 32000
 
 inputs:
   # wrapper params
