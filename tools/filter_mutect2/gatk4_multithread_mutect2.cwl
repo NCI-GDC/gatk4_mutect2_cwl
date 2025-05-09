@@ -9,9 +9,10 @@ requirements:
   - class: DockerRequirement
     dockerPull: {{ docker_repo }}/gatk4-mutect2-tool:{{ gatk4-mutect2-tool }}
   - class: ResourceRequirement
-    coresMin: 1
-    ramMin: 32000
-    ramMax: 32000
+    coresMin: $(inputs.nthreads)
+    coresMax: $(inputs.nthreads)
+    ramMin: $(Math.ceil (inputs.nthreads * 3000))
+    ramMax: $(Math.ceil (inputs.nthreads * 3000))
 
 inputs:
   # wrapper params

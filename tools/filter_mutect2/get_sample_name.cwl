@@ -14,6 +14,7 @@ requirements:
     ramMin: 32000
     ramMax: 32000
 
+
 inputs:
   java_heap: string
   reference:
