@@ -8,11 +8,15 @@ requirements:
   - class: InlineJavascriptRequirement
   - class: ShellCommandRequirement
   - class: DockerRequirement
-    dockerPull: "{{ docker_repo }}/ncigdc/gatk4-mutect2-tool:{{ gatk4-mutect2-tool }}"
+    dockerPull: "{{ docker_repo }}/gatk4-mutect2-tool:{{ gatk4_mutect2_tool }}"
   - class: InitialWorkDirRequirement
     listing:
       - entry: $(inputs.input_bam_path)
         entryname: $(inputs.input_bam_path.basename)
+  - class: ResourceRequirement
+    coresMin: 1
+    ramMin: 32000
+    ramMax: 32000
 
 inputs:
   java_heap: string

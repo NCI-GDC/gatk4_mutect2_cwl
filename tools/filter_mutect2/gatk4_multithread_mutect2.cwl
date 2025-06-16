@@ -7,7 +7,12 @@ class: CommandLineTool
 requirements:
   - class: InlineJavascriptRequirement
   - class: DockerRequirement
-    dockerPull: "{{ docker_repo }}/ncigdc/gatk4-mutect2-tool:{{ gatk4-mutect2-tool }}"
+    dockerPull: "{{ docker_repo }}/gatk4-mutect2-tool:{{ gatk4_mutect2_tool }}"
+  - class: ResourceRequirement
+    coresMin: $(inputs.nthreads)
+    coresMax: $(inputs.nthreads)
+    ramMin: $(Math.ceil (inputs.nthreads * 3000))
+    ramMax: $(Math.ceil (inputs.nthreads * 3000))
 
 inputs:
   # wrapper params
